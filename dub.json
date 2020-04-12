@@ -1,0 +1,9 @@
+{
+	"authors": [
+		"Felipe Beline Baravieira"
+	],
+	"copyright": "Copyright © 2020, Felipe Beline Baravieira",
+	"description": "fuzzy search library",
+	"license": "MIT",
+	"name": "fuzzyd"
+}

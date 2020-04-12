@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/fuzzyd
+fuzzyd.so
+fuzzyd.dylib
+fuzzyd.dll
+fuzzyd.a
+fuzzyd.lib
+fuzzyd-test-*
+*.exe
+*.o
+*.obj
+*.lst
