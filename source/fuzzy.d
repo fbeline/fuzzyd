@@ -6,17 +6,17 @@ import std.container.rbtree;
 import std.container.binaryheap;
 import std.ascii;
 
-alias Item[] delegate(string) score_fn;
+alias Result[] delegate(string) score_fn;
 
-struct Item {
-  int score;
+struct Result {
   string value;
+  int score;
   int[] matches;
 }
 
 score_fn fuzzy(string[] input) {
-  Item score(string s, string t) {
-    Item item;
+  Result score(string s, string t) {
+    Result item;
     auto matches = redBlackTree!int();
     int[][] rm = new int[][](s.length, t.length);
 
@@ -39,15 +39,13 @@ score_fn fuzzy(string[] input) {
     return item;
   }
 
-  Item[] search(string target) {
-    Item[] result = new Item[input.length];
-    auto maxpq = BinaryHeap!(Item[], "a.score < b.score")(result, 0);
+  Result[] search(string target) {
+    auto maxpq = BinaryHeap!(Result[], "a.score < b.score")(new Result[input.length], 0);
     foreach(e; input) {
       maxpq.insert(score(e, target));
     }
-    return result;
+    return maxpq.array();
   }
 
   return &search;
 }
-

@@ -6,9 +6,10 @@ import std.algorithm.comparison : equal;
 
 import fuzzyd;
 
-Item[] prepare(string s) {
+Result[] prepare(string s) {
   string[] source = ["cd Documents",
                      "curl localhost/foo",
+                     "cp bar ../foo",
                      "rm -rf Downloads",
                      "vi ~/Documents"];
   return fuzzy(source)(s);
@@ -19,8 +20,9 @@ unittest {
   auto result = prepare("docts").map!(x => x.value);
   auto expected = ["cd Documents",
                    "vi ~/Documents",
+                   "curl localhost/foo",
                    "rm -rf Downloads",
-                   "curl localhost/foo"];
+                   "cp bar ../foo"];
   assert(equal(expected, result));
 }
 
