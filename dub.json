@@ -1,9 +1,17 @@
 {
-	"authors": [
-		"Felipe Beline Baravieira"
-	],
-	"copyright": "Copyright © 2020, Felipe Beline Baravieira",
-	"description": "fuzzy search library",
-	"license": "MIT",
-	"name": "fuzzyd"
+    "authors": [
+        "Felipe Beline Baravieira"
+    ],
+    "copyright": "Copyright © 2020, Felipe Beline Baravieira",
+    "description": "fuzzy search library",
+    "license": "MIT",
+    "name": "fuzzyd",
+    "sourcePaths": ["source"],
+    "importPaths": ["source"],
+    "buildTypes": {
+        "unittest": {
+            "buildOptions": ["unittests", "debugMode", "debugInfo"],
+            "sourcePaths": ["source", "tests"]
+        }
+    }
 }
