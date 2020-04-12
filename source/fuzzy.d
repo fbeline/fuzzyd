@@ -1,7 +1,10 @@
+module fuzzyd;
+
 import std.stdio;
 import std.array;
 import std.container.rbtree;
 import std.container.binaryheap;
+import std.ascii;
 
 alias Item[] delegate(string) score_fn;
 
@@ -20,7 +23,7 @@ score_fn fuzzy(string[] input) {
     for (int i = 0; i < t.length; i++) {
       for (int j = 0; j < s.length; j++) {
         int v = 0;
-        if (s[j] == t[i]) {
+        if (toLower(s[j]) == toLower(t[i])) {
           v += 1;
           matches.insert(j);
           if (i > 0 && j > 0)
