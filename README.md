@@ -1,4 +1,4 @@
-# fuzzyd
+# fuzzyd [![Build Status](https://travis-ci.org/fbeline/fuzzy-d.svg?branch=master)](https://travis-ci.org/fbeline/fuzzy-d)
 
 A D library designed to provide a fuzzy search in an array of strings. 
 
@@ -6,8 +6,9 @@ The algorithm used is a modification of the [Smith–Waterman algorithm](https:/
 
 ## Rationale
 
-fuzzyd is intended to be used to fuzzy search in a list of files and/or commands. I would not
-recommend the usage of fuzzyd if you are looking for a general-purpose fuzzy search library.
+fuzzyd is intended to be used to fuzzy search in a list of files and/or commands.
+
+Note: I would not recommend the usage of fuzzyd if you are looking for a general-purpose fuzzy search library.
 
 ## Usage
 
@@ -18,11 +19,11 @@ string[] source = ["cd Documents",
                    "curl localhost/foo",
                    "rm -rf Downloads",
                    "vi ~/Documents"];
-                   
+
 auto fzs = fuzzy(source);
 auto result = fzs("docts");
 
-/* result => 
+/* result =>
 [Item(17, "cd Documents", [0, 1, 3, 4, 5, 10, 11]),
  Item(15, "vi ~/Documents", [5, 6, 7, 12, 13]),
  Item(7, "rm -rf Downloads", [7, 8, 12, 14, 15]),
@@ -30,7 +31,7 @@ auto result = fzs("docts");
 */
 ```
 
-The result is a list of `Item`
+Result Item:
 
 ```d
 struct Item {
