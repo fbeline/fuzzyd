@@ -1,5 +1,5 @@
 language: d
 d:
-  - dmd, dub
-  - gdc, dub
-  - ldc, dub
+  - dmd
+  - gdc
+  - ldc
