@@ -36,5 +36,20 @@ unittest {
 @("Start bonus is applyed")
 unittest {
   auto result = prepare("curl")[0].score;
-  assert(74 == result);
+  assert(61 == result);
 }
+
+@("Case bonus is applyed")
+unittest {
+  auto r1 = prepare("docts")[0].score;
+  auto r2 = prepare("Docts")[0].score;
+  assert(r1 == 27);
+  assert(r2 == 34);
+}
+
+@("Word boundary bonus is applyed")
+unittest {
+  auto result = prepare("cd")[0].score;
+  assert(14 == result);
+}
+
