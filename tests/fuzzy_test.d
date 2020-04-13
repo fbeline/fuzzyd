@@ -33,13 +33,13 @@ unittest {
   assert(equal(expected, result));
 }
 
-@("Start bonus is applyed")
+@("Start bonus is applied")
 unittest {
   auto result = prepare("curl")[0].score;
   assert(61 == result);
 }
 
-@("Case bonus is applyed")
+@("Case bonus is applied")
 unittest {
   auto r1 = prepare("docts")[0].score;
   auto r2 = prepare("Docts")[0].score;
@@ -47,9 +47,8 @@ unittest {
   assert(r2 == 34);
 }
 
-@("Word boundary bonus is applyed")
+@("Word boundary bonus is applied")
 unittest {
   auto result = prepare("cd")[0].score;
   assert(14 == result);
 }
-
