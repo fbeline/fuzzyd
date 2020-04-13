@@ -32,3 +32,9 @@ unittest {
   auto expected = [0, 1, 3, 4, 5, 10, 11];
   assert(equal(expected, result));
 }
+
+@("Start bonus is applyed")
+unittest {
+  auto result = prepare("curl")[0].score;
+  assert(74 == result);
+}

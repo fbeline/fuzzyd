@@ -16,12 +16,19 @@ struct Result {
 
 score_fn fuzzy(string[] input) {
 
+  int getPreviousCharScore(int[][] rm, int col, int row) {
+    return (col > 0 && row > 0) ? rm[row-1][col-1] : 0;
+  }
+
+  int startBonus(int col, int row) {
+    return (col == 0 && row == 0) ? 3 : 0;
+  }
+
   int charScore(int[][] rm, string base, string target, int col, int row) {
     int score = 0;
     if (toLower(base[row]) == toLower(target[col])) {
-      score += 1;
-      if (col > 0 && row > 0)
-        score += rm[row-1][col-1] * 2;
+      int previousCharScore = getPreviousCharScore(rm, col, row);
+      score += 1 + (previousCharScore * 2) + startBonus(col, row);
     }
     return score;
   }
