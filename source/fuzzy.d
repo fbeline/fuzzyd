@@ -21,13 +21,18 @@ score_fn fuzzy(string[] db) {
   }
 
   int startBonus(int col, int row) {
-    return (col == 0 && row == 0) ? 2 : 0;
+    return (col == 0 && row == 0) ? 1 : 0;
   }
 
   int caseMatchBonus(string input, string pattern, int col, int row) {
     char ci = input[row];
     char cp = pattern[col];
     return (isUpper(ci) && isUpper(cp) && ci == cp) ? 1 : 0;
+  }
+
+  int wordBoundaryBonus(string input, int row) {
+    bool isInputAt = row == 0 || row == input.length-1 || isWhite(input[row-1]) || isWhite(input[row+1]);
+    return isInputAt ? 1 : 0;
   }
 
   int charScore(int[][] scoreMatrix, string input, string pattern, int col, int row) {
@@ -37,7 +42,8 @@ score_fn fuzzy(string[] db) {
       score += 1
         + (previousCharScore * 2)
         + startBonus(col, row)
-        + caseMatchBonus(input, pattern, col, row);
+        + caseMatchBonus(input, pattern, col, row)
+        + wordBoundaryBonus(input, row);
     }
     return score;
   }
