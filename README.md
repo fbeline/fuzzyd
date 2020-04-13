@@ -1,4 +1,4 @@
-# fuzzyd [![Build Status](https://travis-ci.org/fbeline/fuzzy-d.svg?branch=master)](https://travis-ci.org/fbeline/fuzzy-d)
+# fuzzyd [![Build Status](https://travis-ci.org/fbeline/fuzzyd.svg?branch=master)](https://travis-ci.org/fbeline/fuzzyd)
 
 A D language fuzzy search library. 
 
