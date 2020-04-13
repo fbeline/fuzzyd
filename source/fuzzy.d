@@ -14,6 +14,17 @@ struct Result {
   int[] matches;
 }
 
+/**
+ * Fuzzy search
+ * Params:
+ *   db = Array of string containing the search list.
+ * Examples:
+ * --------------------
+ * auto f = fuzzy(["foo", "bar", "baz"]);
+ * f("br")
+ * // => [Result("bar", 5, [0, 2]), Result("baz", 3, [0]), Result("foo", 0, [])]
+ * --------------------
+ */
 score_fn fuzzy(string[] db) {
 
   int getPreviousCharScore(int[][] scoreMatrix, int col, int row) {
