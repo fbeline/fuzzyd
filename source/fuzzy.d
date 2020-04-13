@@ -21,14 +21,23 @@ score_fn fuzzy(string[] db) {
   }
 
   int startBonus(int col, int row) {
-    return (col == 0 && row == 0) ? 3 : 0;
+    return (col == 0 && row == 0) ? 2 : 0;
+  }
+
+  int caseMatchBonus(string input, string pattern, int col, int row) {
+    char ci = input[row];
+    char cp = pattern[col];
+    return (isUpper(ci) && isUpper(cp) && ci == cp) ? 1 : 0;
   }
 
   int charScore(int[][] scoreMatrix, string input, string pattern, int col, int row) {
     int score = 0;
     if (toLower(input[row]) == toLower(pattern[col])) {
       int previousCharScore = getPreviousCharScore(scoreMatrix, col, row);
-      score += 1 + (previousCharScore * 2) + startBonus(col, row);
+      score += 1
+        + (previousCharScore * 2)
+        + startBonus(col, row)
+        + caseMatchBonus(input, pattern, col, row);
     }
     return score;
   }
