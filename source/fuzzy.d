@@ -15,28 +15,32 @@ struct Result {
 }
 
 score_fn fuzzy(string[] input) {
-  Result score(string s, string t) {
-    Result item;
-    auto matches = redBlackTree!int();
-    int[][] rm = new int[][](s.length, t.length);
 
-    for (int i = 0; i < t.length; i++) {
-      for (int j = 0; j < s.length; j++) {
-        int v = 0;
-        if (toLower(s[j]) == toLower(t[i])) {
-          v += 1;
-          matches.insert(j);
-          if (i > 0 && j > 0)
-            v += rm[j-1][i-1] * 2;
-        }
-        item.score += v;
-        rm[j][i] = v;
+  int charScore(int[][] rm, string base, string target, int col, int row) {
+    int score = 0;
+    if (toLower(base[row]) == toLower(target[col])) {
+      score += 1;
+      if (col > 0 && row > 0)
+        score += rm[row-1][col-1] * 2;
+    }
+    return score;
+  }
+
+  Result score(string base, string target) {
+    int score = 0;
+    auto matches = redBlackTree!int();
+    int[][] rm = new int[][](base.length, target.length);
+
+    for (int col = 0; col < target.length; col++) {
+      for (int row = 0; row < base.length; row++) {
+        int charScore = charScore(rm, base, target, col, row);
+        if (charScore > 0) matches.insert(row);
+        score += charScore;
+        rm[row][col] = charScore;
       }
     }
 
-    item.matches = matches.array();
-    item.value = s;
-    return item;
+    return Result(base, score, matches.array());
   }
 
   Result[] search(string target) {
