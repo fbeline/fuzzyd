@@ -52,4 +52,3 @@ unittest {
   auto result = prepare("cd")[0].score;
   assert(14 == result);
 }
-
