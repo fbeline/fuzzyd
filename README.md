@@ -2,13 +2,11 @@
 
 A D language fuzzy search library. 
 
-The algorithm used is a modification of the [Smith–Waterman algorithm](https://en.m.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm). The worst-case performance is O(m*n) for each entry provided in the input. (m and n are the respective length of the tested strings).
+The algorithm used is a modified version of [Smith–Waterman algorithm](https://en.m.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm). The worst-case performance is O(m*n) for each entry provided in the input. (m and n are the respective length of the tested strings).
 
 ## Rationale
-
-fuzzyd is intended to be used to fuzzy search in a list of files and/or commands.
-
-Note: I would not recommend the usage of fuzzyd if you are looking for a general-purpose fuzzy search library.
+- fuzzyd was primarily created to search matches in a list of files and commands.
+- The algorithm examines all the occurences of the provided pattern, making it slower but more accurate.
 
 ## Usage
 
