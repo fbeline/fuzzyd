@@ -14,46 +14,46 @@ struct Result {
   int[] matches;
 }
 
-score_fn fuzzy(string[] input) {
+score_fn fuzzy(string[] db) {
 
-  int getPreviousCharScore(int[][] rm, int col, int row) {
-    return (col > 0 && row > 0) ? rm[row-1][col-1] : 0;
+  int getPreviousCharScore(int[][] scoreMatrix, int col, int row) {
+    return (col > 0 && row > 0) ? scoreMatrix[row-1][col-1] : 0;
   }
 
   int startBonus(int col, int row) {
     return (col == 0 && row == 0) ? 3 : 0;
   }
 
-  int charScore(int[][] rm, string base, string target, int col, int row) {
+  int charScore(int[][] scoreMatrix, string input, string pattern, int col, int row) {
     int score = 0;
-    if (toLower(base[row]) == toLower(target[col])) {
-      int previousCharScore = getPreviousCharScore(rm, col, row);
+    if (toLower(input[row]) == toLower(pattern[col])) {
+      int previousCharScore = getPreviousCharScore(scoreMatrix, col, row);
       score += 1 + (previousCharScore * 2) + startBonus(col, row);
     }
     return score;
   }
 
-  Result score(string base, string target) {
+  Result score(string input, string pattern) {
     int score = 0;
     auto matches = redBlackTree!int();
-    int[][] rm = new int[][](base.length, target.length);
+    int[][] scoreMatrix = new int[][](input.length, pattern.length);
 
-    for (int col = 0; col < target.length; col++) {
-      for (int row = 0; row < base.length; row++) {
-        int charScore = charScore(rm, base, target, col, row);
+    for (int col = 0; col < pattern.length; col++) {
+      for (int row = 0; row < input.length; row++) {
+        int charScore = charScore(scoreMatrix, input, pattern, col, row);
         if (charScore > 0) matches.insert(row);
         score += charScore;
-        rm[row][col] = charScore;
+        scoreMatrix[row][col] = charScore;
       }
     }
 
-    return Result(base, score, matches.array());
+    return Result(input, score, matches.array());
   }
 
-  Result[] search(string target) {
-    auto maxpq = BinaryHeap!(Result[], "a.score < b.score")(new Result[input.length], 0);
-    foreach(e; input) {
-      maxpq.insert(score(e, target));
+  Result[] search(string pattern) {
+    auto maxpq = BinaryHeap!(Result[], "a.score < b.score")(new Result[db.length], 0);
+    foreach(e; db) {
+      maxpq.insert(score(e, pattern));
     }
     return maxpq.array();
   }
