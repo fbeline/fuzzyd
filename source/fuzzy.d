@@ -40,7 +40,7 @@ struct Input {
   }
 }
 
-int previousCharScore(Input input) {
+int previousCharBonus(Input input) {
   return (input.col > 0 && input.row > 0) ?
     2 * input.scoreMatrix[input.row-1][input.col-1] : 0;
 }
@@ -74,7 +74,7 @@ int wordBoundaryBonus(Input input) {
  */
 export scoreFn fuzzy(string[] db) {
 
-  bonusFn[] bonusFns = [&previousCharScore, &startBonus, &caseMatchBonus, &wordBoundaryBonus];
+  bonusFn[] bonusFns = [&previousCharBonus, &startBonus, &caseMatchBonus, &wordBoundaryBonus];
 
   int charScore(Input input) {
     return input.isMatch ?
