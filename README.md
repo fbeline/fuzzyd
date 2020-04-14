@@ -18,7 +18,7 @@ Note: The algorithm examines all the occurrences of the provided pattern, making
 ## Usage
 
 ```d
-import fuzzyd;
+import fuzzyd.core;
 
 string[] source = ["cd Documents"
                   ,"curl localhost/foo"

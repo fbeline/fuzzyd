@@ -8,6 +8,7 @@
     "name": "fuzzyd",
     "sourcePaths": ["source"],
     "importPaths": ["source"],
+    "targetType": "library",
     "buildTypes": {
         "unittest": {
             "buildOptions": ["unittests", "debugMode", "debugInfo"],

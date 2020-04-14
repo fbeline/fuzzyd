@@ -1,4 +1,4 @@
-module fuzzyd;
+module fuzzyd.core;
 
 import std.stdio;
 import std.array;
@@ -72,7 +72,7 @@ int wordBoundaryBonus(Input input) {
  * // => [Result("bar", 5, [0, 2]), Result("baz", 3, [0]), Result("foo", 0, [])]
  * --------------------
  */
-export scoreFn fuzzy(string[] db) {
+public scoreFn fuzzy(string[] db) {
 
   bonusFn[] bonusFns = [&previousCharBonus, &startBonus, &caseMatchBonus, &wordBoundaryBonus];
 

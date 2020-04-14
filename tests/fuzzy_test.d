@@ -4,7 +4,7 @@ import std.stdio;
 import std.algorithm;
 import std.algorithm.comparison : equal;
 
-import fuzzyd;
+import fuzzyd.core;
 
 Result[] prepare(string s) {
   string[] source = ["cd Documents",
