@@ -25,33 +25,33 @@ string[] source = ["cd Documents"
                   ,"rm -rf Downloads"
                   ,"vi ~/Documents"];
 
-auto fzs = fuzzy(source);
+auto fzy = fuzzy(source);
 
-fzs("docts");
+fzy("docts");
 /* =>
-[Result("cd Documents", 17, [0, 1, 3, 4, 5, 10, 11])
-,Result("vi ~/Documents", 15, [5, 6, 7, 12, 13])
-,Result("curl localhost/foo", 10, [0, 6, 7, 11, 12, 13, 16, 17])
-,Result("rm -rf Downloads", 7, [7, 8, 12, 14, 15])
-,Result("cp bar ../foo", 3, [0, 11, 12])]
+[FuzzyResult("cd Documents", 17, [0, 1, 3, 4, 5, 10, 11])
+,FuzzyResult("vi ~/Documents", 15, [5, 6, 7, 12, 13])
+,FuzzyResult("curl localhost/foo", 10, [0, 6, 7, 11, 12, 13, 16, 17])
+,FuzzyResult("rm -rf Downloads", 7, [7, 8, 12, 14, 15])
+,FuzzyResult("cp bar ../foo", 3, [0, 11, 12])]
 */
 
-fzs("cp /foo");
+fzy("cp /foo");
 /* =>
-[Result("cp bar ../foo", 40, [0, 1, 2, 6, 9, 10, 11, 12])
-,Result("curl localhost/foo", 35, [0, 4, 6, 7, 11, 14, 15, 16, 17])
-,Result("rm -rf Downloads", 7, [2, 5, 6, 8, 12])
-,Result("cd Documents", 5, [0, 2, 4, 5])
-,Result("vi ~/Documents", 5, [2, 4, 6, 7])]
+[FuzzyResult("cp bar ../foo", 40, [0, 1, 2, 6, 9, 10, 11, 12])
+,FuzzyResult("curl localhost/foo", 35, [0, 4, 6, 7, 11, 14, 15, 16, 17])
+,FuzzyResult("rm -rf Downloads", 7, [2, 5, 6, 8, 12])
+,FuzzyResult("cd Documents", 5, [0, 2, 4, 5])
+,FuzzyResult("vi ~/Documents", 5, [2, 4, 6, 7])]
 */
 ```
 
-Result struct:
+FuzzyResult struct:
 
 ```d
-struct Result {
+struct FuzzyResult {
   string value; // entry tested against the provided string. 
-  int score; // metrifies how "similar" the entry is. (Higher better)
+  int score; // how "similar" the entry is. (Higher better)
   int[] matches; // list of indexes of matched characters.
 }
 ```
