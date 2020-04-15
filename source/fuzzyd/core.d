@@ -7,10 +7,10 @@ import std.container.binaryheap;
 import std.ascii;
 import std.algorithm.iteration;
 
-alias Result[] delegate(string) scoreFn;
+alias FuzzyResult[] delegate(string) fuzzyFn;
 alias int function(Input) bonusFn;
 
-export struct Result {
+export struct FuzzyResult {
   string value;
   int score;
   int[] matches;
@@ -67,12 +67,11 @@ int wordBoundaryBonus(Input input) {
  *   db = Array of string containing the search list.
  * Examples:
  * --------------------
- * auto f = fuzzy(["foo", "bar", "baz"]);
- * f("br")
- * // => [Result("bar", 5, [0, 2]), Result("baz", 3, [0]), Result("foo", 0, [])]
+ * fuzzy(["foo", "bar", "baz"])("br");
+ * // => [FuzzyResult("bar", 5, [0, 2]), Result("baz", 3, [0]), Result("foo", 0, [])]
  * --------------------
  */
-public scoreFn fuzzy(string[] db) {
+public fuzzyFn fuzzy(string[] db) {
 
   bonusFn[] bonusFns = [&previousCharBonus, &startBonus, &caseMatchBonus, &wordBoundaryBonus];
 
@@ -81,7 +80,7 @@ public scoreFn fuzzy(string[] db) {
       reduce!((acc, f) => acc + f(input))(1, bonusFns) : 0;
   }
 
-  Result score(string input, string pattern) {
+  FuzzyResult score(string input, string pattern) {
     int score = 0;
     auto matches = redBlackTree!int();
     int[][] scoreMatrix = new int[][](input.length, pattern.length);
@@ -95,11 +94,11 @@ public scoreFn fuzzy(string[] db) {
       }
     }
 
-    return Result(input, score, matches.array());
+    return FuzzyResult(input, score, matches.array());
   }
 
-  Result[] search(string pattern) {
-    auto maxpq = BinaryHeap!(Result[], "a.score < b.score")(new Result[db.length], 0);
+  FuzzyResult[] search(string pattern) {
+    auto maxpq = BinaryHeap!(FuzzyResult[], "a.score < b.score")(new FuzzyResult[db.length], 0);
     foreach(e; db) {
       maxpq.insert(score(e, pattern));
     }

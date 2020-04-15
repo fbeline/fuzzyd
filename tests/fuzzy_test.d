@@ -6,7 +6,7 @@ import std.algorithm.comparison : equal;
 
 import fuzzyd.core;
 
-Result[] prepare(string s) {
+FuzzyResult[] prepare(string s) {
   string[] source = ["cd Documents",
                      "curl localhost/foo",
                      "cp bar ../foo",
