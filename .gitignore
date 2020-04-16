@@ -14,3 +14,4 @@ fuzzyd-test-*
 *.obj
 *.lst
 .#*
+.idea
