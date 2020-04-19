@@ -5,6 +5,8 @@ import std.array;
 import std.container.rbtree;
 import std.container.binaryheap;
 import std.ascii;
+import std.math;
+import std.conv;
 import std.algorithm.iteration;
 
 alias fuzzyFn =  FuzzyResult[]delegate(string);
@@ -116,7 +118,8 @@ fuzzyFn fuzzy(string[] db)
                 scoreMatrix[row][col] = charScore;
             }
         }
-        const int totalScore = score + (simpleMatchScore / 2);
+        const penalizedSimpleMatch = simpleMatchScore / 2.0;
+        const totalScore = score + lround(penalizedSimpleMatch).to!int;
         return FuzzyResult(input, score, matches);
     }
 
