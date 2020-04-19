@@ -80,7 +80,7 @@ struct FuzzyResult
  * Examples:
  * --------------------
  * fuzzy(["foo", "bar", "baz"])("br");
- * // => [FuzzyResult("bar", 5, [0, 2]), Result("baz", 3, [0]), Result("foo", 0, [])]
+ * // => [FuzzyResult("bar", 5, [0, 2]), FuzzyResult("baz", 3, [0]), FuzzyResult("foo", 0, [])]
  * --------------------
  */
 fuzzyFn fuzzy(string[] db)

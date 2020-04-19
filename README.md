@@ -1,14 +1,17 @@
 # fuzzyd [![Build Status](https://travis-ci.org/fbeline/fuzzyd.svg?branch=master)](https://travis-ci.org/fbeline/fuzzyd)
 
-A D language fuzzy search library. 
+A D language fuzzy search library.
 
 The algorithm used is a modified version of [Smith–Waterman algorithm](https://en.m.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm). The worst-case performance is O(m*n) for each entry provided in the input. (m and n are the respective length of the tested strings).
 
 ## About
+
 fuzzyd was primarily created to search matches in a list of files and commands.
 
 ### Criteria
+
 Score extra points when:
+
 - pattern is found at the beggining of the string.
 - pattern is at word boundary position.
 - case sensitive matches.
@@ -46,15 +49,8 @@ fzy("cp /foo");
 */
 ```
 
-FuzzyResult struct:
-
-```d
-struct FuzzyResult {
-  string value; // entry tested against the provided string. 
-  int score; // how "similar" the entry is. (Higher better)
-  int[] matches; // list of indexes of matched characters.
-}
-```
+Refer to the [documentation](/docs/core.html) for more details.
 
 ## License
+
 MIT
