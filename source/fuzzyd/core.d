@@ -7,16 +7,10 @@ import std.container.binaryheap;
 import std.ascii;
 import std.algorithm.iteration;
 
-alias FuzzyResult[]delegate(string) fuzzyFn;
-alias int function(Input) bonusFn;
+alias fuzzyFn =  FuzzyResult[]delegate(string);
+alias bonusFn = int function(Input);
 
-export struct FuzzyResult
-{
-    string value;
-    int score;
-    RedBlackTree!(int, "a < b", false) matches;
-}
-
+private:
 struct Input
 {
     string input;
@@ -37,19 +31,19 @@ struct Input
 
     char isMatch()
     {
-        return toLower( inputAtIndex) == toLower( patternAtIndex);
+        return toLower(inputAtIndex) == toLower(patternAtIndex);
     }
 
     char isCaseSensitiveMatch()
     {
-        return isUpper( inputAtIndex) && isUpper( patternAtIndex) && isMatch ? 1 : 0;
+        return isUpper(inputAtIndex) && isUpper(patternAtIndex) && isMatch ? 1 : 0;
     }
 }
 
 int previousCharBonus(Input input)
 {
     return (input.col > 0 && input.row > 0) ? 2 * input.scoreMatrix[input.row - 1][input.col - 1]
-    : 0;
+        : 0;
 }
 
 int startBonus(Input input)
@@ -64,9 +58,19 @@ int caseMatchBonus(Input input)
 
 int wordBoundaryBonus(Input input)
 {
-    bool isInputAt = input.row == 0 || input.row == input.input.length - 1
-    || isWhite( input.input[input.row - 1]) || isWhite( input.input[input.row + 1]);
+    const isInputAt = input.row == 0 || input.row == input.input.length - 1
+        || isWhite(input.input[input.row - 1]) || isWhite(input.input[input.row + 1]);
     return isInputAt ? 1 : 0;
+}
+
+public:
+
+/// fuzzy search result
+struct FuzzyResult
+{
+    string value; //// entry. e.g "Documents/foo/bar/"
+    int score; //// similarity metric. (Higher better)
+    RedBlackTree!(int, "a < b", false) matches; //// index of matched characters.
 }
 
 /**
@@ -76,48 +80,52 @@ int wordBoundaryBonus(Input input)
  * Examples:
  * --------------------
  * fuzzy(["foo", "bar", "baz"])("br");
- * // => [FuzzyResult("bar", 5, [0, 2]), Result("baz", 3, [0]), Result("foo", 0, [])]
+ * // => [FuzzyResult("bar", 5, [0, 2]), FuzzyResult("baz", 3, [0]), FuzzyResult("foo", 0, [])]
  * --------------------
  */
-public fuzzyFn fuzzy(string[] db)
+fuzzyFn fuzzy(string[] db)
 {
 
     bonusFn[] bonusFns = [
-    &previousCharBonus, &startBonus, &caseMatchBonus, &wordBoundaryBonus
+        &previousCharBonus, &startBonus, &caseMatchBonus, &wordBoundaryBonus
     ];
 
     int charScore(Input input)
     {
-        return input.isMatch ? reduce!((acc, f) => acc + f( input))( 1, bonusFns) : 0;
+        return input.isMatch ? reduce!((acc, f) => acc + f(input))(1, bonusFns) : 0;
     }
 
     FuzzyResult score(string input, string pattern)
     {
         int score = 0;
+        int simpleMatchScore = 0;
         auto matches = redBlackTree!int();
-        int[][] scoreMatrix = new int[][]( input.length, pattern.length);
+        int[][] scoreMatrix = new int[][](input.length, pattern.length);
 
         for (int col = 0; col < pattern.length; col++)
         {
             for (int row = 0; row < input.length; row++)
             {
-                int charScore = charScore( Input( input, pattern, col, row, scoreMatrix));
+                const charScore = charScore(Input(input, pattern, col, row, scoreMatrix));
                 if (charScore > 0)
-                    matches.insert( row);
-                score += charScore;
+                    matches.insert(row);
+                if (charScore is 1)
+                    simpleMatchScore++;
+                else
+                    score += charScore;
                 scoreMatrix[row][col] = charScore;
             }
         }
-
-        return FuzzyResult( input, score, matches);
+        const int totalScore = score + (simpleMatchScore / 2);
+        return FuzzyResult(input, score, matches);
     }
 
     FuzzyResult[] search(string pattern)
     {
-        auto maxpq = BinaryHeap!(FuzzyResult[], "a.score < b.score")( new FuzzyResult[db.length], 0);
+        auto maxpq = BinaryHeap!(FuzzyResult[], "a.score < b.score")(new FuzzyResult[db.length], 0);
         foreach (e; db)
         {
-            maxpq.insert( score( e, pattern));
+            maxpq.insert(score(e, pattern));
         }
         return maxpq.array();
     }
