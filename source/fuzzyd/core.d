@@ -98,6 +98,7 @@ fuzzyFn fuzzy(string[] db)
     FuzzyResult score(string input, string pattern)
     {
         int score = 0;
+        int simpleMatchScore = 0;
         auto matches = redBlackTree!int();
         int[][] scoreMatrix = new int[][](input.length, pattern.length);
 
@@ -108,11 +109,14 @@ fuzzyFn fuzzy(string[] db)
                 const charScore = charScore(Input(input, pattern, col, row, scoreMatrix));
                 if (charScore > 0)
                     matches.insert(row);
-                score += charScore;
+                if (charScore is 1)
+                    simpleMatchScore++;
+                else
+                    score += charScore;
                 scoreMatrix[row][col] = charScore;
             }
         }
-
+        const int totalScore = score + (simpleMatchScore / 2);
         return FuzzyResult(input, score, matches);
     }
 
