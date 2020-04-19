@@ -49,7 +49,7 @@ fzy("cp /foo");
 */
 ```
 
-Refer to the [documentation](/docs/core.html) for more details.
+Refer to the [documentation](https://htmlpreview.github.io/?https://github.com/fbeline/fuzzyd/blob/master/docs/core.html) for more details.
 
 ## License
 
