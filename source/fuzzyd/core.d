@@ -10,7 +10,7 @@ import std.conv;
 import std.algorithm.iteration;
 
 alias fuzzyFn =  FuzzyResult[]delegate(string);
-alias bonusFn = int function(Input);
+alias bonusFn = double function(Input);
 
 private:
 struct Input
@@ -19,7 +19,7 @@ struct Input
     string pattern;
     int col;
     int row;
-    int[][] scoreMatrix;
+    double[][] scoreMatrix;
 
     char inputAtIndex()
     {
@@ -31,38 +31,38 @@ struct Input
         return pattern[col];
     }
 
-    char isMatch()
+    bool isMatch()
     {
         return toLower(inputAtIndex) == toLower(patternAtIndex);
     }
 
-    char isCaseSensitiveMatch()
+    bool isCaseSensitiveMatch()
     {
-        return isUpper(inputAtIndex) && isUpper(patternAtIndex) && isMatch ? 1 : 0;
+        return isUpper(inputAtIndex) && isUpper(patternAtIndex) && isMatch;
     }
 }
 
-int previousCharBonus(Input input)
+double previousCharBonus(Input input)
 {
-    return (input.col > 0 && input.row > 0) ? 2 * input.scoreMatrix[input.row - 1][input.col - 1]
+    return (input.col > 0 && input.row > 0) ? 2.5 * input.scoreMatrix[input.row - 1][input.col - 1]
         : 0;
 }
 
-int startBonus(Input input)
+double startBonus(Input input)
 {
     return (input.col == 0 && input.row == 0) ? 1 : 0;
 }
 
-int caseMatchBonus(Input input)
+double caseMatchBonus(Input input)
 {
-    return input.isCaseSensitiveMatch ? 1 : 0;
+    return input.isCaseSensitiveMatch ? 1.5 : 0;
 }
 
-int wordBoundaryBonus(Input input)
+double wordBoundaryBonus(Input input)
 {
     const isInputAt = input.row == 0 || input.row == input.input.length - 1
         || isWhite(input.input[input.row - 1]) || isWhite(input.input[input.row + 1]);
-    return isInputAt ? 1 : 0;
+    return isInputAt ? 1.2 : 0;
 }
 
 public:
@@ -71,7 +71,7 @@ public:
 struct FuzzyResult
 {
     string value; //// entry. e.g "Documents/foo/bar/"
-    int score; //// similarity metric. (Higher better)
+    double score; //// similarity metric. (Higher better)
     RedBlackTree!(int, "a < b", false) matches; //// index of matched characters.
 }
 
@@ -82,7 +82,7 @@ struct FuzzyResult
  * Examples:
  * --------------------
  * fuzzy(["foo", "bar", "baz"])("br");
- * // => [FuzzyResult("bar", 5, [0, 2]), FuzzyResult("baz", 3, [0]), FuzzyResult("foo", 0, [])]
+ * // => [FuzzyResult("bar", 5, [0, 2.3]), FuzzyResult("baz", 3, [0]), FuzzyResult("foo", 0, [])]
  * --------------------
  */
 fuzzyFn fuzzy(string[] db)
@@ -92,17 +92,17 @@ fuzzyFn fuzzy(string[] db)
         &previousCharBonus, &startBonus, &caseMatchBonus, &wordBoundaryBonus
     ];
 
-    int charScore(Input input)
+    double charScore(Input input)
     {
-        return input.isMatch ? reduce!((acc, f) => acc + f(input))(1, bonusFns) : 0;
+        return input.isMatch ? reduce!((acc, f) => acc + f(input))(1.0, bonusFns) : 0;
     }
 
     FuzzyResult score(string input, string pattern)
     {
-        int score = 0;
-        int simpleMatchScore = 0;
+        double score = 0;
+        double simpleMatchScore = 0;
+        double[][] scoreMatrix = new double[][](input.length, pattern.length);
         auto matches = redBlackTree!int();
-        int[][] scoreMatrix = new int[][](input.length, pattern.length);
 
         for (int col = 0; col < pattern.length; col++)
         {
@@ -111,16 +111,16 @@ fuzzyFn fuzzy(string[] db)
                 const charScore = charScore(Input(input, pattern, col, row, scoreMatrix));
                 if (charScore > 0)
                     matches.insert(row);
-                if (charScore is 1)
-                    simpleMatchScore++;
+                if (charScore is 1.0)
+                    simpleMatchScore += 1;
                 else
                     score += charScore;
                 scoreMatrix[row][col] = charScore;
             }
         }
-        const penalizedSimpleMatch = simpleMatchScore / 2.0;
-        const totalScore = score + lround(penalizedSimpleMatch).to!int;
-        return FuzzyResult(input, score, matches);
+
+        const totalScore = score + (simpleMatchScore / 2.0);
+        return FuzzyResult(input, totalScore, matches);
     }
 
     FuzzyResult[] search(string pattern)

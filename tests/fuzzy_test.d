@@ -35,25 +35,11 @@ unittest
     assert(equal(expected, result));
 }
 
-@("Start bonus is applied")
-unittest
-{
-    const result = prepare("curl")[0].score;
-    assert(59 == result);
-}
+// unittest
+// {
+//     string[] source = [
+//         "fzf", "curl localhost/foo", "git clone git@abf",
+//     ];
+//     writeln(fuzzy(source)("f"));
 
-@("Case bonus is applied")
-unittest
-{
-    const r1 = prepare("docts")[0].score;
-    const r2 = prepare("Docts")[0].score;
-    assert(r1 == 26);
-    assert(r2 == 33);
-}
-
-@("Word boundary bonus is applied")
-unittest
-{
-    const result = prepare("cd")[0].score;
-    assert(13 == result);
-}
+// }
