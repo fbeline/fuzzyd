@@ -35,11 +35,19 @@ unittest
     assert(equal(expected, result));
 }
 
-// unittest
-// {
-//     string[] source = [
-//         "fzf", "curl localhost/foo", "git clone git@abf",
-//     ];
-//     writeln(fuzzy(source)("f"));
+@("Result is empty if no provided db was empty")
+unittest
+{
+    string[] source = [];
+    const result = fuzzy(source)("f");
+    assert(result.empty);
+}
 
-// }
+@("Score is normalized")
+unittest
+{
+    string[] source = [ "fzf", "foo", "bar", "faz"];
+    const FuzzyResult[] invalid = fuzzy(source)("f").filter!(x => x.score > 1 || x.score < 0).array;
+    assert(invalid.empty);
+
+}

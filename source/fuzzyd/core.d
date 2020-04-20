@@ -9,10 +9,11 @@ import std.math;
 import std.conv;
 import std.algorithm.iteration;
 
-alias fuzzyFn =  FuzzyResult[]delegate(string);
+alias fuzzyFn = FuzzyResult[]delegate(string);
 alias bonusFn = double function(Input);
 
 private:
+
 struct Input
 {
     string input;
@@ -44,8 +45,8 @@ struct Input
 
 double previousCharBonus(Input input)
 {
-    return (input.col > 0 && input.row > 0) ? 2.5 * input.scoreMatrix[input.row - 1][input.col - 1]
-        : 0;
+    return (input.col > 0 && input.row > 0) ? 2.5 * input
+        .scoreMatrix[input.row - 1][input.col - 1] : 0;
 }
 
 double startBonus(Input input)
@@ -63,6 +64,15 @@ double wordBoundaryBonus(Input input)
     const isInputAt = input.row == 0 || input.row == input.input.length - 1
         || isWhite(input.input[input.row - 1]) || isWhite(input.input[input.row + 1]);
     return isInputAt ? 1.2 : 0;
+}
+
+FuzzyResult[] normalize(FuzzyResult[] result)
+{
+    const maxScore = !result.empty ? result[0].score : 1;
+    for (long i = 0; i < result.length; i++) {
+        result[i].score /= maxScore;
+    }
+    return result;
 }
 
 public:
@@ -130,7 +140,7 @@ fuzzyFn fuzzy(string[] db)
         {
             maxpq.insert(score(e, pattern));
         }
-        return maxpq.array();
+        return normalize(maxpq.array());
     }
 
     return &search;
