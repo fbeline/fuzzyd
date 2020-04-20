@@ -16,6 +16,10 @@ Score extra points when:
 - pattern is at word boundary position.
 - case sensitive matches.
 
+Penalty for:
+
+- isolated matches worth half of the points.
+
 Note: The algorithm examines all the occurrences of the provided pattern, making it slower but more accurate.
 
 ## Usage
@@ -32,20 +36,10 @@ auto fzy = fuzzy(source);
 
 fzy("docts");
 /* =>
-[FuzzyResult("cd Documents", 17, [0, 1, 3, 4, 5, 10, 11])
-,FuzzyResult("vi ~/Documents", 15, [5, 6, 7, 12, 13])
-,FuzzyResult("curl localhost/foo", 10, [0, 6, 7, 11, 12, 13, 16, 17])
-,FuzzyResult("rm -rf Downloads", 7, [7, 8, 12, 14, 15])
-,FuzzyResult("cp bar ../foo", 3, [0, 11, 12])]
-*/
-
-fzy("cp /foo");
-/* =>
-[FuzzyResult("cp bar ../foo", 40, [0, 1, 2, 6, 9, 10, 11, 12])
-,FuzzyResult("curl localhost/foo", 35, [0, 4, 6, 7, 11, 14, 15, 16, 17])
-,FuzzyResult("rm -rf Downloads", 7, [2, 5, 6, 8, 12])
-,FuzzyResult("cd Documents", 5, [0, 2, 4, 5])
-,FuzzyResult("vi ~/Documents", 5, [2, 4, 6, 7])]
+[FuzzyResult("cd Documents", 1, RedBlackTree([0, 1, 3, 4, 5, 10, 11])),
+ FuzzyResult("vi ~/Documents", 0.533052, RedBlackTree([5, 6, 7, 12, 13])),
+ FuzzyResult("rm -rf Downloads", 0.33474, RedBlackTree([7, 8, 12, 14, 15])),
+ FuzzyResult("curl localhost/foo", 0.292546, RedBlackTree([0, 6, 7, 11, 12, 13, 16, 17]))]
 */
 ```
 
