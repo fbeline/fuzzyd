@@ -35,25 +35,19 @@ unittest
     assert(equal(expected, result));
 }
 
-@("Start bonus is applied")
+@("Result is empty if no provided db was empty")
 unittest
 {
-    const result = prepare("curl")[0].score;
-    assert(59 == result);
+    string[] source = [];
+    const result = fuzzy(source)("f");
+    assert(result.empty);
 }
 
-@("Case bonus is applied")
+@("Score is normalized")
 unittest
 {
-    const r1 = prepare("docts")[0].score;
-    const r2 = prepare("Docts")[0].score;
-    assert(r1 == 26);
-    assert(r2 == 33);
-}
+    string[] source = [ "fzf", "foo", "bar", "faz"];
+    const FuzzyResult[] invalid = fuzzy(source)("f").filter!(x => x.score > 1 || x.score < 0).array;
+    assert(invalid.empty);
 
-@("Word boundary bonus is applied")
-unittest
-{
-    const result = prepare("cd")[0].score;
-    assert(13 == result);
 }
