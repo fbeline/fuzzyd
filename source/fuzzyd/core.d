@@ -2,6 +2,7 @@ module fuzzyd.core;
 
 import std.stdio;
 import std.array;
+import std.range;
 import std.container.rbtree;
 import std.container.binaryheap;
 import std.math;
@@ -51,13 +52,6 @@ double caseMatchBonus(Input input)
     return input.isCaseSensitiveMatch ? 1.5 : 0;
 }
 
-double wordBoundaryBonus(Input input)
-{
-    const isInputAt = input.row == 0 || input.row == input.input.length - 1
-        || isWhite(input.input[input.row - 1]) || isWhite(input.input[input.row + 1]);
-    return isInputAt ? 1.2 : 0;
-}
-
 FuzzyResult[] normalize(FuzzyResult[] result)
 {
     const maxScore = !result.empty ? result[0].score : 1;
@@ -92,7 +86,7 @@ fuzzyFn fuzzy(string[] db)
 {
 
     bonusFn[] bonusFns = [
-        &previousCharBonus, &startBonus, &caseMatchBonus, &wordBoundaryBonus
+        &previousCharBonus, &startBonus, &caseMatchBonus
     ];
 
     double charScore(Input input)

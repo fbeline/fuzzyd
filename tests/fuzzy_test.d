@@ -21,8 +21,8 @@ unittest
 {
     auto result = prepare("docts").map!(x => x.value);
     const expected = [
-        "cd Documents", "vi ~/Documents", "rm -rf Downloads",
-        "curl localhost/foo", "cp bar ../foo"
+        "cd Documents", "vi ~/Documents", "curl localhost/foo",
+        "rm -rf Downloads", "cp bar ../foo"
     ];
     assert(equal(expected, result));
 }
@@ -52,7 +52,9 @@ unittest
 
     auto fzy = fuzzy(source);
 
-    assert(fzy("docts").map!(x => x.score).filter!(s => s < 0 || s > 1).empty);
+    assert(fzy("docts").map!(x => x.score)
+            .filter!(s => s < 0 || s > 1)
+            .empty);
 }
 
 @("Unicode support")
