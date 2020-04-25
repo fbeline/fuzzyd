@@ -43,27 +43,23 @@ unittest
     assert(result.empty);
 }
 
-// @("Score is normalized")
-// unittest
-// {
-//     string[] source = [
-//         "cd Documents", "curl localhost/foo", "rm -rf Downloads", "vi ~/Documents"
-//     ];
+@("Score is normalized")
+unittest
+{
+    string[] source = [
+        "cd Documents", "curl localhost/foo", "rm -rf Downloads", "vi ~/Documents"
+    ];
 
-//     auto fzy = fuzzy(source);
+    auto fzy = fuzzy(source);
 
-//     writeln(fzy("docts"));
-// }
+    assert(fzy("docts").map!(x => x.score).filter!(s => s < 0 || s > 1).empty);
+}
 
 @("Unicode support")
 unittest
 {
-    string[] source = [
-        "férias"
-    ];
+    string[] source = ["férias"];
 
     const result = fuzzy(source)("fé")[0].matches.array;
-    writeln(result);
     assert(equal([0, 1], result));
 }
-
