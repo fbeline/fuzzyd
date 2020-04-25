@@ -4,9 +4,9 @@ import std.stdio;
 import std.array;
 import std.container.rbtree;
 import std.container.binaryheap;
-import std.ascii;
 import std.math;
 import std.conv;
+import std.uni;
 import std.algorithm.iteration;
 
 alias fuzzyFn = FuzzyResult[]delegate(string);
@@ -18,28 +18,20 @@ struct Input
 {
     string input;
     string pattern;
+    dchar i;
+    dchar p;
     int col;
     int row;
     double[][] scoreMatrix;
 
-    char inputAtIndex()
-    {
-        return input[row];
-    }
-
-    char patternAtIndex()
-    {
-        return pattern[col];
-    }
-
     bool isMatch()
     {
-        return toLower(inputAtIndex) == toLower(patternAtIndex);
+        return i.toLower == p.toLower;
     }
 
     bool isCaseSensitiveMatch()
     {
-        return isUpper(inputAtIndex) && isUpper(patternAtIndex) && isMatch;
+        return i.isUpper && p.isUpper && isMatch;
     }
 }
 
@@ -69,7 +61,8 @@ double wordBoundaryBonus(Input input)
 FuzzyResult[] normalize(FuzzyResult[] result)
 {
     const maxScore = !result.empty ? result[0].score : 1;
-    for (long i = 0; i < result.length; i++) {
+    for (long i = 0; i < result.length; i++)
+    {
         result[i].score /= maxScore;
     }
     return result;
@@ -114,11 +107,13 @@ fuzzyFn fuzzy(string[] db)
         double[][] scoreMatrix = new double[][](input.length, pattern.length);
         auto matches = redBlackTree!int();
 
-        for (int col = 0; col < pattern.length; col++)
+        int row, col;
+        foreach (p; pattern.byCodePoint)
         {
-            for (int row = 0; row < input.length; row++)
+            row = 0;
+            foreach (i; input.byCodePoint)
             {
-                const charScore = charScore(Input(input, pattern, col, row, scoreMatrix));
+                const charScore = charScore(Input(input, pattern, i, p, col, row, scoreMatrix));
                 if (charScore > 0)
                     matches.insert(row);
                 if (charScore is 1.0)
@@ -126,7 +121,9 @@ fuzzyFn fuzzy(string[] db)
                 else
                     score += charScore;
                 scoreMatrix[row][col] = charScore;
+                row++;
             }
+            col++;
         }
 
         const totalScore = score + (simpleMatchScore / 2.0);
