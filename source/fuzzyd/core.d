@@ -17,8 +17,6 @@ private:
 
 struct Input
 {
-    string input;
-    string pattern;
     dchar i;
     dchar p;
     int col;
@@ -107,7 +105,7 @@ fuzzyFn fuzzy(string[] db)
             row = 0;
             foreach (i; input.byCodePoint)
             {
-                const charScore = charScore(Input(input, pattern, i, p, col, row, scoreMatrix));
+                const charScore = charScore(Input(i, p, col, row, scoreMatrix));
                 if (charScore > 0)
                     matches.insert(row);
                 if (charScore is 1.0)
