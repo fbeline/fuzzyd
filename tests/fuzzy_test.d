@@ -13,7 +13,9 @@ private FuzzyResult[] prepare(string s)
         "cd Documents", "curl localhost/foo", "cp bar ../foo",
         "rm -rf Downloads", "vi ~/Documents"
     ];
-    return fuzzy(source)(s);
+    FuzzyResult[] response = new FuzzyResult[source.length];
+    fuzzy(source)(s, response);
+    return response;
 }
 
 @("Matches in expected order")
@@ -30,38 +32,37 @@ unittest
 @("Matches indexes")
 unittest
 {
-    const result = prepare("docts")[0].matches.array();
-    const expected = [0, 1, 3, 4, 5, 10, 11];
+    const result = prepare("docts")[0].matches;
+    const expected = [1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1];
     assert(equal(expected, result));
 }
 
-@("Result is empty if no provided db was empty")
+@("Result is empty if provided db is empty")
 unittest
 {
     string[] source = [];
-    const result = fuzzy(source)("f");
+    FuzzyResult[] result = new FuzzyResult[0];
+    fuzzy(source)("f", result);
     assert(result.empty);
-}
-
-@("Score is normalized")
-unittest
-{
-    string[] source = [
-        "cd Documents", "curl localhost/foo", "rm -rf Downloads", "vi ~/Documents"
-    ];
-
-    auto fzy = fuzzy(source);
-
-    assert(fzy("docts").map!(x => x.score)
-            .filter!(s => s < 0 || s > 1)
-            .empty);
 }
 
 @("Unicode support")
 unittest
 {
-    string[] source = ["férias"];
+    // string[] source = ["férias"];
+    // auto result = new FuzzyResult[source.length];
+    // fuzzy(source)("fé", result);
+    // assert(equal([1, 1, 0, 0, 0, 0], result[0].matches));
+    // fuzzy(["foo", "bar", "baz"])("br", result);
 
-    const result = fuzzy(source)("fé")[0].matches.array;
-    assert(equal([0, 1], result));
+string[] source = ["cd Documents"
+                  ,"curl localhost/foo"
+                  ,"rm -rf Downloads"
+                  ,"vi ~/Documents"];
+
+auto result = new FuzzyResult[source.length];
+auto fzy = fuzzy(source);
+
+fzy("docts", result);
+writeln(result);
 }
