@@ -31,19 +31,17 @@ string[] source = ["cd Documents"
                   ,"curl localhost/foo"
                   ,"rm -rf Downloads"
                   ,"vi ~/Documents"];
-
+auto result = new FuzzyResult[source.length];
 auto fzy = fuzzy(source);
 
-fzy("docts");
-/* =>
-[FuzzyResult("cd Documents", 1, RedBlackTree([0, 1, 3, 4, 5, 10, 11])),
- FuzzyResult("vi ~/Documents", 0.533052, RedBlackTree([5, 6, 7, 12, 13])),
- FuzzyResult("rm -rf Downloads", 0.33474, RedBlackTree([7, 8, 12, 14, 15])),
- FuzzyResult("curl localhost/foo", 0.292546, RedBlackTree([0, 6, 7, 11, 12, 13, 16, 17]))]
+fzy("docts", result);
+/* result =>
+[FuzzyResult("cd Documents", 150, [1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1]),
+ FuzzyResult("vi ~/Documents", 140, [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1]),
+ FuzzyResult("curl localhost/foo", 90, [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1]),
+ FuzzyResult("rm -rf Downloads", 75, [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1])]
 */
 ```
-
-Refer to the [documentation](https://htmlpreview.github.io/?https://github.com/fbeline/fuzzyd/blob/master/docs/core.html) for more details.
 
 ## License
 

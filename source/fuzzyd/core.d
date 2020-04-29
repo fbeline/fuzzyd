@@ -48,7 +48,7 @@ class Input
 
 long previousCharBonus(Input input)
 {
-    long* bonus  = (input.row-1) in input.previousBonus;
+    long* bonus = (input.row - 1) in input.previousBonus;
     return bonus !is null ? 2 * *bonus : 0;
 }
 
@@ -78,8 +78,10 @@ struct FuzzyResult
  *   db = Array of string containing the search list.
  * Examples:
  * --------------------
- * fuzzy(["foo", "bar", "baz"])("br");
- * // => [FuzzyResult("bar", 1, RedBlackTree([0, 2])), FuzzyResult("baz", 0.592593, RedBlackTree([0])), FuzzyResult("foo", 0, RedBlackTree([]))]
+ * auto result = new FuzzyResult[3];
+ * fuzzy(["foo", "bar", "baz"])("br", result);
+ * // => result
+   // [FuzzyResult("bar", 25, [1, 0, 1]), FuzzyResult("baz", 20, [1, 0, 0]), FuzzyResult("foo", 0, [0, 0, 0])]
  * --------------------
  */
 fuzzyFn fuzzy(string[] db)
@@ -130,12 +132,10 @@ fuzzyFn fuzzy(string[] db)
 
     void search(string pattern, ref FuzzyResult[] result)
     {
-        // auto maxpq = BinaryHeap!(FuzzyResult[], "a.score < b.score")(result, 0);
         Input input = new Input();
         for (int i = 0; i < result.length; i++)
         {
             input.value = db[i];
-            // maxpq.insert(score(input, pattern));
             result[i] = score(input, pattern);
         }
         result.sort!("a.score > b.score");
@@ -143,3 +143,4 @@ fuzzyFn fuzzy(string[] db)
 
     return &search;
 }
+
