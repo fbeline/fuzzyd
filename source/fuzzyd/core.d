@@ -4,12 +4,12 @@ import std.stdio;
 import std.array;
 import std.range;
 import std.container.rbtree;
-import std.container.binaryheap;
 import std.math;
 import std.conv;
 import std.uni;
 import std.algorithm.iteration;
 import std.algorithm.sorting;
+import std.algorithm : max;
 
 alias fuzzyFn = void delegate(string, ref FuzzyResult[]);
 alias bonusFn = double function(Input);
@@ -22,7 +22,7 @@ struct Input
     dchar p;
     int col;
     int row;
-    double[][] scoreMatrix;
+    double[int] previousBonus;
 
     bool isMatch()
     {
@@ -37,8 +37,8 @@ struct Input
 
 double previousCharBonus(Input input)
 {
-    return (input.col > 0 && input.row > 0) ? 2.5 * input
-        .scoreMatrix[input.row - 1][input.col - 1] : 0;
+    const r = input.row-1;
+    return (r in input.previousBonus) ? 2.5 * input.previousBonus[r] : 0;
 }
 
 double startBonus(Input input)
@@ -83,9 +83,7 @@ struct FuzzyResult
 fuzzyFn fuzzy(string[] db)
 {
 
-    bonusFn[] bonusFns = [
-        &previousCharBonus, &startBonus, &caseMatchBonus
-    ];
+    bonusFn[] bonusFns = [&previousCharBonus, &startBonus, &caseMatchBonus];
 
     double charScore(Input input)
     {
@@ -96,26 +94,30 @@ fuzzyFn fuzzy(string[] db)
     {
         double score = 0;
         double simpleMatchScore = 0;
-        double[][] scoreMatrix = new double[][](input.length, pattern.length);
         auto matches = redBlackTree!int();
-
+        double[int] previousMatches;
+        double[int] currentMatches;
         int row, col;
         foreach (p; pattern.byCodePoint)
         {
-            row = 0;
             foreach (i; input.byCodePoint)
             {
-                const charScore = charScore(Input(i, p, col, row, scoreMatrix));
-                if (charScore > 0)
+                const charScore = charScore(Input(i, p, col, row, previousMatches));
+                if (charScore > 0) {
                     matches.insert(row);
+                    currentMatches[row] = charScore;
+                }
+
                 if (charScore is 1.0)
                     simpleMatchScore += 1;
                 else
                     score += charScore;
-                scoreMatrix[row][col] = charScore;
+
                 row++;
             }
+            previousMatches = currentMatches;
             col++;
+            row = 0;
         }
 
         const totalScore = score + (simpleMatchScore / 2.0);
@@ -124,11 +126,11 @@ fuzzyFn fuzzy(string[] db)
 
     void search(string pattern, ref FuzzyResult[] result)
     {
-        // auto maxpq = BinaryHeap!(FuzzyResult[], "a.score < b.score")(result, 0);
         for (int i = 0; i < result.length; i++)
         {
             result[i] = score(db[i], pattern);
         }
+
         result.sort!("a.score > b.score");
         normalize(result);
     }
