@@ -15,7 +15,7 @@ import std.algorithm.mutation;
 import std.numeric;
 
 alias fuzzyFn = void delegate(string, ref FuzzyResult[]);
-alias bonusFn = double function(Input);
+alias bonusFn = long function(Input);
 
 private:
 
@@ -24,9 +24,9 @@ class Input
     string value;
     dchar i, p;
     int row, col;
-    float[int] previousBonus;
+    long[int] previousBonus;
 
-    final void set(dchar i, dchar p, int col, int row, float[int] previousBonus)
+    final void set(dchar i, dchar p, int col, int row, long[int] previousBonus)
     {
         this.i = i;
         this.p = p;
@@ -46,29 +46,20 @@ class Input
     }
 }
 
-double previousCharBonus(Input input)
+long previousCharBonus(Input input)
 {
-    float* bonus  = (input.row-1) in input.previousBonus;
-    return bonus !is null ? 2.5 * *bonus : 0;
+    long* bonus  = (input.row-1) in input.previousBonus;
+    return bonus !is null ? 2 * *bonus : 0;
 }
 
-double startBonus(Input input)
+long startBonus(Input input)
 {
-    return (input.col == 0 && input.row == 0) ? 1 : 0;
+    return (input.col == 0 && input.row == 0) ? 10 : 0;
 }
 
-double caseMatchBonus(Input input)
+long caseMatchBonus(Input input)
 {
-    return input.isCaseSensitiveMatch ? 1.5 : 0;
-}
-
-void normalize(ref FuzzyResult[] result)
-{
-    const maxScore = !result.empty ? result[0].score : 1;
-    for (long i = 0; i < result.length; i++)
-    {
-        result[i].score /= maxScore;
-    }
+    return input.isCaseSensitiveMatch ? 15 : 0;
 }
 
 public:
@@ -77,7 +68,7 @@ public:
 struct FuzzyResult
 {
     string value; //// entry. e.g "Documents/foo/bar/"
-    double score; //// similarity metric. (Higher better)
+    long score; //// similarity metric. (Higher better)
     uint[] matches; //// index of matched characters (0 = miss , 1 = hit).
 }
 
@@ -96,17 +87,17 @@ fuzzyFn fuzzy(string[] db)
 
     bonusFn[] bonusFns = [&previousCharBonus, &startBonus, &caseMatchBonus];
 
-    double charScore(Input input)
+    long charScore(Input input)
     {
-        return input.isMatch ? reduce!((acc, f) => acc + f(input))(1.0, bonusFns) : 0;
+        return input.isMatch ? reduce!((acc, f) => acc + f(input))(10L, bonusFns) : 0;
     }
 
     FuzzyResult score(Input input, string pattern)
     {
-        FPTemporary!float score = 0;
-        FPTemporary!float simpleMatchScore = 0;
-        float[int] previousMatches;
-        float[int] currentMatches;
+        long score = 0;
+        long simpleMatchScore = 0;
+        long[int] previousMatches;
+        long[int] currentMatches;
         uint[] matches = new uint[input.value.walkLength];
         ushort row, col;
         foreach (p; pattern.byCodePoint)
@@ -115,14 +106,14 @@ fuzzyFn fuzzy(string[] db)
             {
                 input.set(i, p, col, row, previousMatches);
                 const charScore = charScore(input);
-                if (charScore > 0)
+                if (charScore >= 10)
                 {
                     matches[row] = 1;
                     currentMatches[row] = charScore;
                 }
 
-                if (charScore is 1.0)
-                    simpleMatchScore += 1;
+                if (charScore == 10)
+                    simpleMatchScore += charScore;
                 else
                     score += charScore;
 
@@ -133,22 +124,21 @@ fuzzyFn fuzzy(string[] db)
             row = 0;
         }
 
-        FPTemporary!float totalScore = score + (simpleMatchScore / 2.0);
+        const totalScore = score + (simpleMatchScore / 2);
         return FuzzyResult(input.value, totalScore, matches);
     }
 
     void search(string pattern, ref FuzzyResult[] result)
     {
+        // auto maxpq = BinaryHeap!(FuzzyResult[], "a.score < b.score")(result, 0);
         Input input = new Input();
         for (int i = 0; i < result.length; i++)
         {
             input.value = db[i];
+            // maxpq.insert(score(input, pattern));
             result[i] = score(input, pattern);
         }
-
         result.sort!("a.score > b.score");
-        // heapify!"a.score < b.score"(result);
-        normalize(result);
     }
 
     return &search;

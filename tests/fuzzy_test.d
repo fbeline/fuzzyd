@@ -32,7 +32,7 @@ unittest
 @("Matches indexes")
 unittest
 {
-    const result = prepare("docts")[0].matches.array();
+    const result = prepare("docts")[0].matches;
     const expected = [1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1];
     assert(equal(expected, result));
 }
@@ -44,17 +44,6 @@ unittest
     FuzzyResult[] result = new FuzzyResult[0];
     fuzzy(source)("f", result);
     assert(result.empty);
-}
-
-@("Score is normalized")
-unittest
-{
-    string[] source = [
-        "cd Documents", "curl localhost/foo", "rm -rf Downloads", "vi ~/Documents"
-    ];
-    FuzzyResult[] result = new FuzzyResult[source.length];
-    fuzzy(source)("docts", result);
-    assert(result.map!(x => x.score).filter!(s => s < 0 || s > 1).empty);
 }
 
 @("Unicode support")
