@@ -33,7 +33,7 @@ unittest
 unittest
 {
     const result = prepare("docts")[0].matches.array();
-    const expected = [0, 1, 3, 4, 5, 10, 11];
+    const expected = [1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1];
     assert(equal(expected, result));
 }
 
@@ -63,5 +63,5 @@ unittest
     string[] source = ["férias"];
     auto result = new FuzzyResult[source.length];
     fuzzy(source)("fé", result);
-    assert(equal([0, 1], result[0].matches.array));
+    assert(equal([1, 1, 0, 0, 0, 0], result[0].matches));
 }

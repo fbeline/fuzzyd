@@ -3,7 +3,6 @@ module fuzzyd.core;
 import std.stdio;
 import std.array;
 import std.range;
-import std.container.rbtree;
 import std.math;
 import std.conv;
 import std.uni;
@@ -74,7 +73,8 @@ struct FuzzyResult
 {
     string value; //// entry. e.g "Documents/foo/bar/"
     double score; //// similarity metric. (Higher better)
-    RedBlackTree!(int, "a < b", false) matches; //// index of matched characters.
+    // RedBlackTree!(int, "a < b", false) matches; //// index of matched characters.
+    int[] matches;
 }
 
 /**
@@ -101,9 +101,9 @@ fuzzyFn fuzzy(string[] db)
     {
         double score = 0;
         double simpleMatchScore = 0;
-        auto matches = redBlackTree!int();
         double[int] previousMatches;
         double[int] currentMatches;
+        int[] matches = new int[input.value.walkLength];
         int row, col;
         foreach (p; pattern.byCodePoint)
         {
@@ -112,7 +112,7 @@ fuzzyFn fuzzy(string[] db)
                 input.set(i, p, col, row, previousMatches);
                 const charScore = charScore(input);
                 if (charScore > 0) {
-                    matches.insert(row);
+                    matches[row] = 1;
                     currentMatches[row] = charScore;
                 }
 
