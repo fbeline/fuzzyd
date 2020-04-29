@@ -9,8 +9,9 @@ import std.math;
 import std.conv;
 import std.uni;
 import std.algorithm.iteration;
+import std.algorithm.sorting;
 
-alias fuzzyFn = FuzzyResult[]delegate(string);
+alias fuzzyFn = void delegate(string, ref FuzzyResult[]);
 alias bonusFn = double function(Input);
 
 private:
@@ -50,14 +51,13 @@ double caseMatchBonus(Input input)
     return input.isCaseSensitiveMatch ? 1.5 : 0;
 }
 
-FuzzyResult[] normalize(FuzzyResult[] result)
+void normalize(ref FuzzyResult[] result)
 {
     const maxScore = !result.empty ? result[0].score : 1;
     for (long i = 0; i < result.length; i++)
     {
         result[i].score /= maxScore;
     }
-    return result;
 }
 
 public:
@@ -122,14 +122,15 @@ fuzzyFn fuzzy(string[] db)
         return FuzzyResult(input, totalScore, matches);
     }
 
-    FuzzyResult[] search(string pattern)
+    void search(string pattern, ref FuzzyResult[] result)
     {
-        auto maxpq = BinaryHeap!(FuzzyResult[], "a.score < b.score")(new FuzzyResult[db.length], 0);
-        foreach (e; db)
+        // auto maxpq = BinaryHeap!(FuzzyResult[], "a.score < b.score")(result, 0);
+        for (int i = 0; i < result.length; i++)
         {
-            maxpq.insert(score(e, pattern));
+            result[i] = score(db[i], pattern);
         }
-        return normalize(maxpq.array());
+        result.sort!("a.score > b.score");
+        normalize(result);
     }
 
     return &search;
