@@ -16,13 +16,20 @@ alias bonusFn = double function(Input);
 
 private:
 
-struct Input
+class Input
 {
-    dchar i;
-    dchar p;
-    int col;
-    int row;
+    string value;
+    dchar i, p;
+    int row, col;
     double[int] previousBonus;
+
+    void set(dchar i, dchar p, int col, int row, double[int] previousBonus) {
+        this.i = i;
+        this.p = p;
+        this.col = col;
+        this.row = row;
+        this.previousBonus = previousBonus;
+    }
 
     bool isMatch()
     {
@@ -90,7 +97,7 @@ fuzzyFn fuzzy(string[] db)
         return input.isMatch ? reduce!((acc, f) => acc + f(input))(1.0, bonusFns) : 0;
     }
 
-    FuzzyResult score(string input, string pattern)
+    FuzzyResult score(Input input, string pattern)
     {
         double score = 0;
         double simpleMatchScore = 0;
@@ -100,9 +107,10 @@ fuzzyFn fuzzy(string[] db)
         int row, col;
         foreach (p; pattern.byCodePoint)
         {
-            foreach (i; input.byCodePoint)
+            foreach (i; input.value.byCodePoint)
             {
-                const charScore = charScore(Input(i, p, col, row, previousMatches));
+                input.set(i, p, col, row, previousMatches);
+                const charScore = charScore(input);
                 if (charScore > 0) {
                     matches.insert(row);
                     currentMatches[row] = charScore;
@@ -121,14 +129,16 @@ fuzzyFn fuzzy(string[] db)
         }
 
         const totalScore = score + (simpleMatchScore / 2.0);
-        return FuzzyResult(input, totalScore, matches);
+        return FuzzyResult(input.value, totalScore, matches);
     }
 
     void search(string pattern, ref FuzzyResult[] result)
     {
+        Input input = new Input();
         for (int i = 0; i < result.length; i++)
         {
-            result[i] = score(db[i], pattern);
+            input.value = db[i];
+            result[i] = score(input, pattern);
         }
 
         result.sort!("a.score > b.score");
