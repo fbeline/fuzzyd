@@ -9,6 +9,10 @@ import std.uni;
 import std.algorithm.iteration;
 import std.algorithm.sorting;
 import std.algorithm : max;
+import std.container.binaryheap;
+import std.container.rbtree;
+import std.algorithm.mutation;
+import std.numeric;
 
 alias fuzzyFn = void delegate(string, ref FuzzyResult[]);
 alias bonusFn = double function(Input);
@@ -20,9 +24,10 @@ class Input
     string value;
     dchar i, p;
     int row, col;
-    double[int] previousBonus;
+    float[int] previousBonus;
 
-    void set(dchar i, dchar p, int col, int row, double[int] previousBonus) {
+    final void set(dchar i, dchar p, int col, int row, float[int] previousBonus)
+    {
         this.i = i;
         this.p = p;
         this.col = col;
@@ -30,12 +35,12 @@ class Input
         this.previousBonus = previousBonus;
     }
 
-    bool isMatch()
+    final bool isMatch()
     {
         return i.toLower == p.toLower;
     }
 
-    bool isCaseSensitiveMatch()
+    final bool isCaseSensitiveMatch()
     {
         return i.isUpper && p.isUpper && isMatch;
     }
@@ -43,8 +48,8 @@ class Input
 
 double previousCharBonus(Input input)
 {
-    const r = input.row-1;
-    return (r in input.previousBonus) ? 2.5 * input.previousBonus[r] : 0;
+    float* bonus  = (input.row-1) in input.previousBonus;
+    return bonus !is null ? 2.5 * *bonus : 0;
 }
 
 double startBonus(Input input)
@@ -73,8 +78,7 @@ struct FuzzyResult
 {
     string value; //// entry. e.g "Documents/foo/bar/"
     double score; //// similarity metric. (Higher better)
-    // RedBlackTree!(int, "a < b", false) matches; //// index of matched characters.
-    int[] matches;
+    uint[] matches; //// index of matched characters (0 = miss , 1 = hit).
 }
 
 /**
@@ -99,19 +103,20 @@ fuzzyFn fuzzy(string[] db)
 
     FuzzyResult score(Input input, string pattern)
     {
-        double score = 0;
-        double simpleMatchScore = 0;
-        double[int] previousMatches;
-        double[int] currentMatches;
-        int[] matches = new int[input.value.walkLength];
-        int row, col;
+        FPTemporary!float score = 0;
+        FPTemporary!float simpleMatchScore = 0;
+        float[int] previousMatches;
+        float[int] currentMatches;
+        uint[] matches = new uint[input.value.walkLength];
+        ushort row, col;
         foreach (p; pattern.byCodePoint)
         {
             foreach (i; input.value.byCodePoint)
             {
                 input.set(i, p, col, row, previousMatches);
                 const charScore = charScore(input);
-                if (charScore > 0) {
+                if (charScore > 0)
+                {
                     matches[row] = 1;
                     currentMatches[row] = charScore;
                 }
@@ -128,7 +133,7 @@ fuzzyFn fuzzy(string[] db)
             row = 0;
         }
 
-        const totalScore = score + (simpleMatchScore / 2.0);
+        FPTemporary!float totalScore = score + (simpleMatchScore / 2.0);
         return FuzzyResult(input.value, totalScore, matches);
     }
 
@@ -142,6 +147,7 @@ fuzzyFn fuzzy(string[] db)
         }
 
         result.sort!("a.score > b.score");
+        // heapify!"a.score < b.score"(result);
         normalize(result);
     }
 
