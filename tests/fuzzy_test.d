@@ -49,20 +49,9 @@ unittest
 @("Unicode support")
 unittest
 {
-    // string[] source = ["férias"];
-    // auto result = new FuzzyResult[source.length];
-    // fuzzy(source)("fé", result);
-    // assert(equal([1, 1, 0, 0, 0, 0], result[0].matches));
-    // fuzzy(["foo", "bar", "baz"])("br", result);
-
-string[] source = ["cd Documents"
-                  ,"curl localhost/foo"
-                  ,"rm -rf Downloads"
-                  ,"vi ~/Documents"];
-
-auto result = new FuzzyResult[source.length];
-auto fzy = fuzzy(source);
-
-fzy("docts", result);
-writeln(result);
+    string[] source = ["férias"];
+    auto result = new FuzzyResult[source.length];
+    fuzzy(source)("fé", result);
+    assert(equal([1, 1, 0, 0, 0, 0], result[0].matches));
+    fuzzy(["foo", "bar", "baz"])("br", result);
 }

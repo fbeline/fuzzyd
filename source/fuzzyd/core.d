@@ -21,15 +21,15 @@ class Input
     string value;
     dchar i, p;
     int row, col;
-    long[Tuple!(int, int)] previousBonus;
+    long[Tuple!(int, int)] history;
 
-    final void set(dchar i, dchar p, int col, int row, long[Tuple!(int, int)] previousBonus)
+    final void set(dchar i, dchar p, int col, int row, long[Tuple!(int, int)] history)
     {
         this.i = i;
         this.p = p;
         this.col = col;
         this.row = row;
-        this.previousBonus = previousBonus;
+        this.history = history;
     }
 
     final bool isMatch()
@@ -45,7 +45,7 @@ class Input
 
 long previousCharBonus(Input input)
 {
-    long* bonus = tuple(input.row-1, input.col-1) in input.previousBonus;
+    long* bonus = tuple(input.row - 1, input.col - 1) in input.history;
     return bonus !is null ? 2 * *bonus : 0;
 }
 
@@ -83,7 +83,6 @@ struct FuzzyResult
  */
 fuzzyFn fuzzy(string[] db)
 {
-
     bonusFn[] bonusFns = [&previousCharBonus, &startBonus, &caseMatchBonus];
 
     long charScore(Input input)
@@ -95,19 +94,19 @@ fuzzyFn fuzzy(string[] db)
     {
         long score = 0;
         long simpleMatchScore = 0;
-        long[Tuple!(int, int)] matchesHistory;
+        long[Tuple!(int, int)] history;
         uint[] matches = new uint[input.value.walkLength];
         int row, col;
         foreach (p; pattern.byCodePoint)
         {
             foreach (i; input.value.byCodePoint)
             {
-                input.set(i, p, col, row, matchesHistory);
+                input.set(i, p, col, row, history);
                 const charScore = charScore(input);
                 if (charScore >= 10)
                 {
                     matches[row] = 1;
-                    matchesHistory[tuple(row, col)] = charScore;
+                    history[tuple(row, col)] = charScore;
                 }
 
                 if (charScore == 10)
@@ -128,7 +127,7 @@ fuzzyFn fuzzy(string[] db)
     void search(string pattern, ref FuzzyResult[] result)
     {
         Input input = new Input();
-        for (int i = 0; i < result.length; i++)
+        for (long i = 0, max = result.length; i < max; i++)
         {
             input.value = db[i];
             result[i] = score(input, pattern);
@@ -138,4 +137,3 @@ fuzzyFn fuzzy(string[] db)
 
     return &search;
 }
-
