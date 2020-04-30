@@ -5,10 +5,11 @@ import std.stdio;
 import std.file;
 import std.string;
 import std.datetime;
+import std.container.binaryheap;
+import std.range;
 
 unittest
 {
-    // 3800 ms
     string[] db;
     File file = File("tests/input.txt", "r");
 
@@ -25,10 +26,15 @@ unittest
 
     const f = fuzzy(db);
     f("n", r);
+    heapify!"a.score < b.score"(r).take(20).array;
     f("c", r);
+    heapify!"a.score < b.score"(r).take(20).array;
     f("u", r);
+    heapify!"a.score < b.score"(r).take(20).array;
     f("r", r);
+    heapify!"a.score < b.score"(r).take(20).array;
     f("s", r);
+    heapify!"a.score < b.score"(r).take(20).array;
 
 
     // end

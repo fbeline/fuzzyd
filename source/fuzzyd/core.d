@@ -132,7 +132,6 @@ fuzzyFn fuzzy(string[] db)
             input.value = db[i];
             result[i] = score(input, pattern);
         }
-        result.sort!("a.score > b.score");
     }
 
     return &search;

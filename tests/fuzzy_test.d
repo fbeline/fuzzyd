@@ -4,6 +4,8 @@ import std.stdio;
 import std.array;
 import std.algorithm;
 import std.algorithm.comparison : equal;
+import std.container.binaryheap;
+import std.range;
 
 import fuzzyd.core;
 
@@ -15,7 +17,7 @@ private FuzzyResult[] prepare(string s)
     ];
     FuzzyResult[] response = new FuzzyResult[source.length];
     fuzzy(source)(s, response);
-    return response;
+    return heapify!"a.score < b.score"(response).take(source.length).array;
 }
 
 @("Matches in expected order")
