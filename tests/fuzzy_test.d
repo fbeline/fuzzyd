@@ -55,5 +55,16 @@ unittest
     auto result = new FuzzyResult[source.length];
     fuzzy(source)("fé", result);
     assert(equal([0, 1], result[0].matches.sort));
-    fuzzy(["foo", "bar", "baz"])("br", result);
+}
+
+@("Total amount of matches")
+unittest
+{
+    string[] source = [
+        "cd Documents", "curl localhost/foo", "cp bar ../foo",
+        "rm -rf Downloads", "vi ~/Documents"
+    ];
+    FuzzyResult[] response = new FuzzyResult[source.length];
+    const total = fuzzy(source)("doc", response);
+    assert(total == 4);
 }

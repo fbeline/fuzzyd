@@ -11,7 +11,7 @@ import std.algorithm.sorting;
 import std.algorithm : max;
 import std.typecons;
 
-alias fuzzyFn = void delegate(string, ref FuzzyResult[]);
+alias fuzzyFn = long delegate(string, ref FuzzyResult[]);
 alias bonusFn = long function(ref Input);
 
 private:
@@ -67,7 +67,7 @@ struct FuzzyResult
     string value; /// entry. e.g "Documents/foo/bar/"
     long score; /// similarity metric. (Higher better)
     int[] matches; /// index of matched characters (0 = miss , 1 = hit).
-    bool isValid; /// return true if consecutive characters are matched.
+    bool isMatch; /// return true if consecutive characters are matched.
 }
 
 /**
@@ -94,7 +94,7 @@ fuzzyFn fuzzy(string[] db)
     FuzzyResult score(string txt, string pattern)
     {
         long score = 0;
-        long simpleMatchScore = 0;
+        long simpleScore = 0;
         auto input = Input(txt);
         foreach (p; pattern.byCodePoint)
         {
@@ -109,7 +109,7 @@ fuzzyFn fuzzy(string[] db)
                 }
 
                 if (charScore == 10)
-                    simpleMatchScore += charScore;
+                    simpleScore += charScore;
                 else
                     score += charScore;
 
@@ -119,22 +119,23 @@ fuzzyFn fuzzy(string[] db)
             input.row = 0;
         }
 
-        const totalScore = score + (simpleMatchScore / 2);
+        const totalScore = score + (simpleScore / 2);
         if (pattern.walkLength == 1 && totalScore > 0)
             input.hasSequence = true;
 
         return FuzzyResult(txt, totalScore, input.history.keys.map!(x => x[0]).array, input.hasSequence);
     }
 
-    void search(string pattern, ref FuzzyResult[] result)
+    long search(string pattern, ref FuzzyResult[] result)
     {
         long totalMatches = 0;
         for (long i = 0, max = result.length; i < max; i++)
         {
             result[i] = score(db[i], pattern);
-            if (result[i].isValid)
+            if (result[i].isMatch)
                 totalMatches++;
         }
+        return totalMatches;
     }
 
     return &search;
