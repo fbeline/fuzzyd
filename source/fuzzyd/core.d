@@ -12,49 +12,49 @@ import std.algorithm : max;
 import std.typecons;
 
 alias fuzzyFn = void delegate(string, ref FuzzyResult[]);
-alias bonusFn = long function(Input);
+alias bonusFn = long function(ref Input);
 
 private:
 
-class Input
+struct Input
 {
     string value;
-    dchar i, p;
-    int row, col;
+    dchar i;
+    dchar p;
+    int col;
+    int row;
     long[Tuple!(int, int)] history;
+    bool hasSequence = false;
 
-    final void set(dchar i, dchar p, int col, int row, long[Tuple!(int, int)] history)
-    {
-        this.i = i;
-        this.p = p;
-        this.col = col;
-        this.row = row;
-        this.history = history;
-    }
-
-    final bool isMatch()
+    bool isMatch()
     {
         return i.toLower == p.toLower;
     }
 
-    final bool isCaseSensitiveMatch()
+    bool isCaseSensitiveMatch()
     {
         return i.isUpper && p.isUpper && isMatch;
     }
 }
 
-long previousCharBonus(Input input)
+long previousCharBonus(ref Input input)
 {
     long* bonus = tuple(input.row - 1, input.col - 1) in input.history;
-    return bonus !is null ? 2 * *bonus : 0;
+    if (bonus !is null)
+    {
+        *bonus = *bonus * 2;
+        input.hasSequence = true;
+        return *bonus;
+    }
+    return 0;
 }
 
-long startBonus(Input input)
+long startBonus(ref Input input)
 {
     return (input.col == 0 && input.row == 0) ? 10 : 0;
 }
 
-long caseMatchBonus(Input input)
+long caseMatchBonus(ref Input input)
 {
     return input.isCaseSensitiveMatch ? 15 : 0;
 }
@@ -64,9 +64,10 @@ public:
 /// fuzzy search result
 struct FuzzyResult
 {
-    string value; //// entry. e.g "Documents/foo/bar/"
-    long score; //// similarity metric. (Higher better)
-    uint[] matches; //// index of matched characters (0 = miss , 1 = hit).
+    string value; /// entry. e.g "Documents/foo/bar/"
+    long score; /// similarity metric. (Higher better)
+    uint[] matches; /// index of matched characters (0 = miss , 1 = hit).
+    bool isValid; /// return true if consecutive characters are matched.
 }
 
 /**
@@ -85,28 +86,28 @@ fuzzyFn fuzzy(string[] db)
 {
     bonusFn[] bonusFns = [&previousCharBonus, &startBonus, &caseMatchBonus];
 
-    long charScore(Input input)
+    long charScore(ref Input input)
     {
         return input.isMatch ? reduce!((acc, f) => acc + f(input))(10L, bonusFns) : 0;
     }
 
-    FuzzyResult score(Input input, string pattern)
+    FuzzyResult score(string txt, string pattern)
     {
         long score = 0;
         long simpleMatchScore = 0;
-        long[Tuple!(int, int)] history;
-        uint[] matches = new uint[input.value.walkLength];
-        int row, col;
+        uint[] matches = new uint[txt.walkLength];
+        auto input = Input(txt);
         foreach (p; pattern.byCodePoint)
         {
-            foreach (i; input.value.byCodePoint)
+            input.p = p;
+            foreach (i; txt.byCodePoint)
             {
-                input.set(i, p, col, row, history);
+                input.i = i;
                 const charScore = charScore(input);
                 if (charScore >= 10)
                 {
-                    matches[row] = 1;
-                    history[tuple(row, col)] = charScore;
+                    matches[input.row] = 1;
+                    input.history[tuple(input.row, input.col)] = charScore;
                 }
 
                 if (charScore == 10)
@@ -114,23 +115,27 @@ fuzzyFn fuzzy(string[] db)
                 else
                     score += charScore;
 
-                row++;
+                input.row++;
             }
-            col++;
-            row = 0;
+            input.col++;
+            input.row = 0;
         }
 
         const totalScore = score + (simpleMatchScore / 2);
-        return FuzzyResult(input.value, totalScore, matches);
+        if (pattern.walkLength == 1 && totalScore > 0)
+            input.hasSequence = true;
+
+        return FuzzyResult(txt, totalScore, matches, input.hasSequence);
     }
 
     void search(string pattern, ref FuzzyResult[] result)
     {
-        Input input = new Input();
+        long totalMatches = 0;
         for (long i = 0, max = result.length; i < max; i++)
         {
-            input.value = db[i];
-            result[i] = score(input, pattern);
+            result[i] = score(db[i], pattern);
+            if (result[i].isValid)
+                totalMatches++;
         }
     }
 
