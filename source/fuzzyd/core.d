@@ -9,10 +9,7 @@ import std.uni;
 import std.algorithm.iteration;
 import std.algorithm.sorting;
 import std.algorithm : max;
-import std.container.binaryheap;
-import std.container.rbtree;
-import std.algorithm.mutation;
-import std.numeric;
+import std.typecons;
 
 alias fuzzyFn = void delegate(string, ref FuzzyResult[]);
 alias bonusFn = long function(Input);
@@ -24,9 +21,9 @@ class Input
     string value;
     dchar i, p;
     int row, col;
-    long[int] previousBonus;
+    long[Tuple!(int, int)] previousBonus;
 
-    final void set(dchar i, dchar p, int col, int row, long[int] previousBonus)
+    final void set(dchar i, dchar p, int col, int row, long[Tuple!(int, int)] previousBonus)
     {
         this.i = i;
         this.p = p;
@@ -48,7 +45,7 @@ class Input
 
 long previousCharBonus(Input input)
 {
-    long* bonus = (input.row - 1) in input.previousBonus;
+    long* bonus = tuple(input.row-1, input.col-1) in input.previousBonus;
     return bonus !is null ? 2 * *bonus : 0;
 }
 
@@ -98,20 +95,19 @@ fuzzyFn fuzzy(string[] db)
     {
         long score = 0;
         long simpleMatchScore = 0;
-        long[int] previousMatches;
-        long[int] currentMatches;
+        long[Tuple!(int, int)] matchesHistory;
         uint[] matches = new uint[input.value.walkLength];
-        ushort row, col;
+        int row, col;
         foreach (p; pattern.byCodePoint)
         {
             foreach (i; input.value.byCodePoint)
             {
-                input.set(i, p, col, row, previousMatches);
+                input.set(i, p, col, row, matchesHistory);
                 const charScore = charScore(input);
                 if (charScore >= 10)
                 {
                     matches[row] = 1;
-                    currentMatches[row] = charScore;
+                    matchesHistory[tuple(row, col)] = charScore;
                 }
 
                 if (charScore == 10)
@@ -121,7 +117,6 @@ fuzzyFn fuzzy(string[] db)
 
                 row++;
             }
-            previousMatches = currentMatches;
             col++;
             row = 0;
         }
