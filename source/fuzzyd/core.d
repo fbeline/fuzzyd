@@ -66,7 +66,7 @@ struct FuzzyResult
 {
     string value; /// entry. e.g "Documents/foo/bar/"
     long score; /// similarity metric. (Higher better)
-    uint[] matches; /// index of matched characters (0 = miss , 1 = hit).
+    int[] matches; /// index of matched characters (0 = miss , 1 = hit).
     bool isValid; /// return true if consecutive characters are matched.
 }
 
@@ -79,7 +79,7 @@ struct FuzzyResult
  * auto result = new FuzzyResult[3];
  * fuzzy(["foo", "bar", "baz"])("br", result);
  * // => result
-   // [FuzzyResult("bar", 25, [1, 0, 1]), FuzzyResult("baz", 20, [1, 0, 0]), FuzzyResult("foo", 0, [0, 0, 0])]
+   // [FuzzyResult("bar", 25, [0, 2]), FuzzyResult("baz", 20, [0]), FuzzyResult("foo", 0, [])]
  * --------------------
  */
 fuzzyFn fuzzy(string[] db)
@@ -95,7 +95,6 @@ fuzzyFn fuzzy(string[] db)
     {
         long score = 0;
         long simpleMatchScore = 0;
-        uint[] matches = new uint[txt.walkLength];
         auto input = Input(txt);
         foreach (p; pattern.byCodePoint)
         {
@@ -106,7 +105,6 @@ fuzzyFn fuzzy(string[] db)
                 const charScore = charScore(input);
                 if (charScore >= 10)
                 {
-                    matches[input.row] = 1;
                     input.history[tuple(input.row, input.col)] = charScore;
                 }
 
@@ -125,7 +123,7 @@ fuzzyFn fuzzy(string[] db)
         if (pattern.walkLength == 1 && totalScore > 0)
             input.hasSequence = true;
 
-        return FuzzyResult(txt, totalScore, matches, input.hasSequence);
+        return FuzzyResult(txt, totalScore, input.history.keys.map!(x => x[0]).array, input.hasSequence);
     }
 
     void search(string pattern, ref FuzzyResult[] result)

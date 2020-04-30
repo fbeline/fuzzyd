@@ -34,9 +34,9 @@ unittest
 @("Matches indexes")
 unittest
 {
-    const result = prepare("docts")[0].matches;
-    const expected = [1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1];
-    assert(equal(expected, result));
+    auto result = prepare("docts")[0].matches;
+    const expected = [0, 1, 3, 4, 5, 10, 11];
+    assert(equal(expected, result.sort));
 }
 
 @("Result is empty if provided db is empty")
@@ -54,6 +54,6 @@ unittest
     string[] source = ["férias"];
     auto result = new FuzzyResult[source.length];
     fuzzy(source)("fé", result);
-    assert(equal([1, 1, 0, 0, 0, 0], result[0].matches));
+    assert(equal([0, 1], result[0].matches.sort));
     fuzzy(["foo", "bar", "baz"])("br", result);
 }

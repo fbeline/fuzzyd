@@ -36,10 +36,10 @@ auto fzy = fuzzy(source);
 
 fzy("docts", result);
 /* result =>
-[FuzzyResult("cd Documents", 150, [1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1]),
- FuzzyResult("vi ~/Documents", 140, [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1]),
- FuzzyResult("curl localhost/foo", 90, [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1]),
- FuzzyResult("rm -rf Downloads", 75, [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1])]
+  [FuzzyResult("cd Documents", 150, [4, 5, 0, 1, 10, 11, 3], true),
+   FuzzyResult("curl localhost/foo", 65, [11, 0, 6, 16, 7, 12, 17, 13], true),
+   FuzzyResult("rm -rf Downloads", 50, [12, 7, 14, 15, 8], true),
+   FuzzyResult("vi ~/Documents", 140, [7, 12, 5, 6, 13], true)]
 */
 ```
 
