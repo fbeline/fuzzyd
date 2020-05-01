@@ -17,7 +17,7 @@ private:
 
 long consecutiveBonus(ref long[] lidx, long cidx)
 {
-    return lidx.length > 0 && lidx[$-1] == cidx-1 ? 20 : 0;
+    return lidx.length > 0 && lidx[$ - 1] == cidx - 1 ? 20 : 0;
 }
 
 long caseMatchBonus(dchar x, dchar y)
@@ -58,7 +58,10 @@ fuzzyFn fuzzy(string[] db)
 
     FuzzyResult score(ref string txt, ref dchar[] pattern)
     {
-        const patternLength = pattern.length; 
+        if (pattern == "")
+            return FuzzyResult(txt, 0, [], true);
+
+        const patternLength = pattern.length;
         long score = 0;
         bool start, end;
 
@@ -73,17 +76,19 @@ fuzzyFn fuzzy(string[] db)
                 score += firstIdx(i) + consecutiveBonus(lidx, i) + caseMatchBonus(t, pattern[j]);
                 if (j == 0)
                     start = true;
-                
+
                 j++;
                 lidx ~= i;
-                if (j == patternLength) {
+                if (j == patternLength)
+                {
                     end = true;
                     break;
                 }
             }
             i++;
         }
-        if (start && end) {
+        if (start && end)
+        {
             score += 1000;
         }
         return FuzzyResult(txt, score, lidx, start && end);

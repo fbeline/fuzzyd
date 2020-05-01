@@ -68,3 +68,10 @@ unittest
     const total = fuzzy(source)("doc", response);
     assert(total == 2);
 }
+
+
+@("When pattern is empty all items scores are 0")
+unittest
+{
+    assert(prepare("").filter!(x => x.score > 0).array.empty);
+}

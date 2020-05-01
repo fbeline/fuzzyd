@@ -4,7 +4,7 @@ import fuzzyd.core;
 import std.stdio;
 import std.file;
 import std.string;
-import std.datetime;
+import std.datetime.stopwatch;
 import std.container.binaryheap;
 import std.range;
 
@@ -19,7 +19,7 @@ unittest
         db ~= line;
     }
     // start
-    StopWatch sw;
+    StopWatch sw = StopWatch(AutoStart.no);
     sw.start();
     // --------
     auto r = new FuzzyResult[db.length];
@@ -36,9 +36,9 @@ unittest
     f("s", r);
     heapify!"a.score < b.score"(r).take(20).array;
 
-
+    sw.stop();
     // end
-    const long exec_ms = sw.peek().msecs;
+    const long exec_ms = sw.peek.total!"msecs";
     writeln("-------- Result --------");
     writeln("Nº lines: ", db.length);
     writeln("Time: ", exec_ms);
