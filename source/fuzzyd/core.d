@@ -12,51 +12,17 @@ import std.algorithm : max;
 import std.typecons;
 
 alias fuzzyFn = long delegate(string, ref FuzzyResult[]);
-alias bonusFn = long function(ref Input);
 
 private:
 
-struct Input
+long consecutiveBonus(ref long[] lidx, long cidx, long score)
 {
-    string value;
-    dchar i;
-    dchar p;
-    int col;
-    int row;
-    long[Tuple!(int, int)] history;
-    bool hasSequence = false;
-
-    bool isMatch()
-    {
-        return i.toLower == p.toLower;
-    }
-
-    bool isCaseSensitiveMatch()
-    {
-        return i.isUpper && p.isUpper && isMatch;
-    }
+    return lidx.length > 0 && lidx[$-1] == cidx ? score * 2 : 0;
 }
 
-long previousCharBonus(ref Input input)
+long caseMatchBonus(dchar x, dchar y)
 {
-    long* bonus = tuple(input.row - 1, input.col - 1) in input.history;
-    if (bonus !is null)
-    {
-        *bonus = *bonus * 2;
-        input.hasSequence = true;
-        return *bonus;
-    }
-    return 0;
-}
-
-long startBonus(ref Input input)
-{
-    return (input.col == 0 && input.row == 0) ? 10 : 0;
-}
-
-long caseMatchBonus(ref Input input)
-{
-    return input.isCaseSensitiveMatch ? 15 : 0;
+    return x.isUpper && y.isUpper ? 15 : 0;
 }
 
 public:
@@ -66,7 +32,7 @@ struct FuzzyResult
 {
     string value; /// entry. e.g "Documents/foo/bar/"
     long score; /// similarity metric. (Higher better)
-    int[] matches; /// index of matched characters (0 = miss , 1 = hit).
+    long[] matches; /// index of matched characters (0 = miss , 1 = hit).
     bool isMatch; /// return true if consecutive characters are matched.
 }
 
@@ -84,54 +50,47 @@ struct FuzzyResult
  */
 fuzzyFn fuzzy(string[] db)
 {
-    bonusFn[] bonusFns = [&previousCharBonus, &startBonus, &caseMatchBonus];
 
-    long charScore(ref Input input)
+    FuzzyResult score(ref string txt, ref dchar[] pattern)
     {
-        return input.isMatch ? reduce!((acc, f) => acc + f(input))(10L, bonusFns) : 0;
-    }
-
-    FuzzyResult score(string txt, string pattern)
-    {
+        const patternLength = pattern.length; 
         long score = 0;
-        long simpleScore = 0;
-        auto input = Input(txt);
-        foreach (p; pattern.byCodePoint)
+        bool start, end;
+
+        long[] lidx;
+        long j = 0;
+        long i = 0;
+        foreach (t; txt.byCodePoint)
         {
-            input.p = p;
-            foreach (i; txt.byCodePoint)
+            if (t.toLower == pattern[j].toLower)
             {
-                input.i = i;
-                const charScore = charScore(input);
-                if (charScore >= 10)
-                {
-                    input.history[tuple(input.row, input.col)] = charScore;
+                score += 1;
+                score += consecutiveBonus(lidx, i, score) + caseMatchBonus(t, pattern[j]);
+                if (j == 0)
+                    start = true;
+                
+                j++;
+                lidx ~= i;
+                if (j == patternLength) {
+                    end = true;
+                    break;
                 }
-
-                if (charScore == 10)
-                    simpleScore += charScore;
-                else
-                    score += charScore;
-
-                input.row++;
             }
-            input.col++;
-            input.row = 0;
+            i++;
         }
-
-        const totalScore = score + (simpleScore / 2);
-        if (pattern.walkLength == 1 && totalScore > 0)
-            input.hasSequence = true;
-
-        return FuzzyResult(txt, totalScore, input.history.keys.map!(x => x[0]).array, input.hasSequence);
+        if (start && end) {
+            score += 1000;
+        }
+        return FuzzyResult(txt, score, lidx, start && end);
     }
 
     long search(string pattern, ref FuzzyResult[] result)
     {
         long totalMatches = 0;
+        auto p = pattern.byCodePoint.array;
         for (long i = 0, max = result.length; i < max; i++)
         {
-            result[i] = score(db[i], pattern);
+            result[i] = score(db[i], p);
             if (result[i].isMatch)
                 totalMatches++;
         }
