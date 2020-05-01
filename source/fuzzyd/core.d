@@ -15,9 +15,9 @@ alias fuzzyFn = long delegate(string, ref FuzzyResult[]);
 
 private:
 
-long consecutiveBonus(ref long[] lidx, long cidx, long score)
+long consecutiveBonus(ref long[] lidx, long cidx)
 {
-    return lidx.length > 0 && lidx[$-1] == cidx ? score * 2 : 0;
+    return lidx.length > 0 && lidx[$-1] == cidx-1 ? 20 : 0;
 }
 
 long caseMatchBonus(dchar x, dchar y)
@@ -70,7 +70,7 @@ fuzzyFn fuzzy(string[] db)
             if (t.toLower == pattern[j].toLower)
             {
                 score += 10;
-                score += firstIdx(i) + consecutiveBonus(lidx, i, score) + caseMatchBonus(t, pattern[j]);
+                score += firstIdx(i) + consecutiveBonus(lidx, i) + caseMatchBonus(t, pattern[j]);
                 if (j == 0)
                     start = true;
                 

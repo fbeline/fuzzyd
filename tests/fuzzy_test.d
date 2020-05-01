@@ -25,7 +25,7 @@ unittest
 {
     auto result = prepare("docts").map!(x => x.value);
     const expected = [
-        "cd Documents", "vi ~/Documents", "rm -rf Downloads",
+        "vi ~/Documents", "cd Documents", "rm -rf Downloads",
         "curl localhost/foo", "cp bar ../foo"
     ];
     assert(equal(expected, result));
@@ -35,7 +35,7 @@ unittest
 unittest
 {
     auto result = prepare("docts")[0].matches;
-    const expected = [1, 4, 5, 10, 11];
+    const expected = [5, 6, 7, 12, 13];
     assert(equal(expected, result.sort));
 }
 
