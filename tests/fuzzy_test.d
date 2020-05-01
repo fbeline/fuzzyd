@@ -25,8 +25,8 @@ unittest
 {
     auto result = prepare("docts").map!(x => x.value);
     const expected = [
-        "cd Documents", "vi ~/Documents", "curl localhost/foo",
-        "rm -rf Downloads", "cp bar ../foo"
+        "cd Documents", "vi ~/Documents", "rm -rf Downloads",
+        "curl localhost/foo", "cp bar ../foo"
     ];
     assert(equal(expected, result));
 }
@@ -35,7 +35,7 @@ unittest
 unittest
 {
     auto result = prepare("docts")[0].matches;
-    const expected = [0, 1, 3, 4, 5, 10, 11];
+    const expected = [1, 4, 5, 10, 11];
     assert(equal(expected, result.sort));
 }
 
@@ -54,7 +54,7 @@ unittest
     string[] source = ["férias"];
     auto result = new FuzzyResult[source.length];
     fuzzy(source)("fé", result);
-    assert(equal([0, 1], result[0].matches.sort));
+    assert(equal([0, 1], result[0].matches));
 }
 
 @("Total amount of matches")
@@ -66,5 +66,5 @@ unittest
     ];
     FuzzyResult[] response = new FuzzyResult[source.length];
     const total = fuzzy(source)("doc", response);
-    assert(total == 4);
+    assert(total == 2);
 }
