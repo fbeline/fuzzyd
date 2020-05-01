@@ -50,7 +50,7 @@ struct FuzzyResult
  * auto result = new FuzzyResult[3];
  * fuzzy(["foo", "bar", "baz"])("br", result);
  * // => result
-   // [FuzzyResult("bar", 25, [0, 2]), FuzzyResult("baz", 20, [0]), FuzzyResult("foo", 0, [])]
+   // [FuzzyResult("foo", 0, [], false), FuzzyResult("bar", 1030, [0, 2], true), FuzzyResult("baz", 20, [0], false)]
  * --------------------
  */
 fuzzyFn fuzzy(string[] db)
@@ -69,7 +69,7 @@ fuzzyFn fuzzy(string[] db)
         {
             if (t.toLower == pattern[j].toLower)
             {
-                score += 1;
+                score += 10;
                 score += firstIdx(i) + consecutiveBonus(lidx, i, score) + caseMatchBonus(t, pattern[j]);
                 if (j == 0)
                     start = true;

@@ -25,7 +25,8 @@ unittest
 {
     auto result = prepare("docts").map!(x => x.value);
     const expected = [
-        "cd Documents", "vi ~/Documents", "rm -rf Downloads",  "curl localhost/foo" , "cp bar ../foo"
+        "cd Documents", "vi ~/Documents", "rm -rf Downloads",
+        "curl localhost/foo", "cp bar ../foo"
     ];
     assert(equal(expected, result));
 }
