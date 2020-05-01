@@ -25,6 +25,11 @@ long caseMatchBonus(dchar x, dchar y)
     return x.isUpper && y.isUpper ? 15 : 0;
 }
 
+long firstIdx(long idx)
+{
+    return idx == 0 ? 10 : 0;
+}
+
 public:
 
 /// fuzzy search result
@@ -65,7 +70,7 @@ fuzzyFn fuzzy(string[] db)
             if (t.toLower == pattern[j].toLower)
             {
                 score += 1;
-                score += consecutiveBonus(lidx, i, score) + caseMatchBonus(t, pattern[j]);
+                score += firstIdx(i) + consecutiveBonus(lidx, i, score) + caseMatchBonus(t, pattern[j]);
                 if (j == 0)
                     start = true;
                 
