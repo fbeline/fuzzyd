@@ -26,7 +26,7 @@ unittest
     auto result = prepare("docts").map!(x => x.value);
     const expected = [
         "vi ~/Documents", "cd Documents", "rm -rf Downloads",
-        "curl localhost/foo", "cp bar ../foo"
+        "cp bar ../foo", "curl localhost/foo"
     ];
     assert(equal(expected, result));
 }
@@ -68,7 +68,6 @@ unittest
     const total = fuzzy(source)("doc", response);
     assert(total == 2);
 }
-
 
 @("When pattern is empty all items scores are 0")
 unittest

@@ -91,6 +91,7 @@ fuzzyFn fuzzy(string[] db)
         {
             score += 1000;
         }
+        score -= abs(txt.walkLength - pattern.walkLength);
         return FuzzyResult(txt, score, lidx, start && end);
     }
 
